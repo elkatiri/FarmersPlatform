@@ -1,6 +1,7 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
-import Navbar from './components/Navbar';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+
 import ProtectedRoute from './components/ProtectedRoute';
+import Navbar from './components/Navbar';
 import HomePage from './pages/HomePage';
 import FarmerRequestPage from './pages/FarmerRequestPage';
 import WorkerProfilePage from './pages/WorkerProfilePage';
@@ -14,10 +15,14 @@ import RegisterPage from './pages/RegisterPage';
 import Footer from './components/Footer';
 
 const App = () => {
+  const { pathname } = useLocation();
+  const hideNavbar = pathname === '/' || pathname === '/admin';
+
   return (
     <div>
-      <Navbar />
-      <main className="container">
+      {!hideNavbar && <Navbar />}
+
+      <main className="main-container" style={{ marginTop: hideNavbar ? 0 : '96px' }}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/request-worker" element={<FarmerRequestPage />} />

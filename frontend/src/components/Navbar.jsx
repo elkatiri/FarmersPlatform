@@ -1,6 +1,6 @@
 import { Link, NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import logo from '../assets/logo.jpeg';
+import logo from '../assets/logo.svg';
 
 const Navbar = () => {
   const { isAdminAuthenticated, isUserAuthenticated, currentUser, logout, logoutUser } = useAuth();
@@ -13,8 +13,8 @@ const Navbar = () => {
     }`;
 
   return (
-    <nav className="sticky top-3 z-50 py-2">
-      <div className="mx-auto w-[95%] lg:w-[80%] rounded-2xl border border-[#facc15]/70 bg-[#16a34a]/95 px-4 py-3 text-white shadow-[0_10px_25px_rgba(22,163,74,0.28)] backdrop-blur-sm">
+    <nav className="fixed inset-x-0 top-4 z-50 flex justify-center px-3 pointer-events-none">
+      <div className="pointer-events-auto w-[82%] max-w-6xl rounded-2xl border border-white/25 bg-gradient-to-r from-[#15803d]/95 via-[#16a34a]/95 to-[#0f3b20]/95 px-4 py-3 text-white shadow-[0_18px_55px_rgba(22,163,74,0.32)] backdrop-blur-xl">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Link to="/" className="group flex items-center gap-3 text-lg font-extrabold tracking-tight text-white">
             <span className="inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-white/20 ring-2 ring-white/40 transition group-hover:scale-105">
@@ -48,8 +48,8 @@ const Navbar = () => {
                   Admin
                 </NavLink>
                 <button
-                  onClick={logout}
-                  className="!w-auto rounded-lg bg-[#facc15] px-3 py-2 text-sm font-semibold text-[#14532d] transition hover:bg-[#fde047]"
+                    onClick={logout}
+                    className="!w-auto rounded-lg bg-[#facc15] px-3 py-2 text-sm font-semibold text-[#14532d] transition hover:bg-[#fde047]"
                 >
                   Déconnexion Admin
                 </button>
@@ -62,8 +62,8 @@ const Navbar = () => {
                   {currentUser?.firstName ? `Bonjour, ${currentUser.firstName}` : 'Utilisateur connecté'}
                 </span>
                 <button
-                  onClick={logoutUser}
-                  className="!w-auto rounded-lg bg-[#facc15] px-3 py-2 text-sm font-semibold text-[#14532d] transition hover:bg-[#fde047]"
+                    onClick={logoutUser}
+                    className="!w-auto rounded-lg bg-[#facc15] px-3 py-2 text-sm font-semibold text-[#14532d] transition hover:bg-[#fde047]"
                 >
                   Déconnexion
                 </button>
