@@ -1,8 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { api } from '../services/api';
-import { useAuth } from '../context/AuthContext';
-import { promptAuthRequired } from '../utils/authPrompt';
+import { useLanguage } from '../context/LanguageContext';
 
 const initialState = {
   workType: '',
@@ -10,54 +8,45 @@ const initialState = {
   startDate: '',
   endDate: '',
   workersNeeded: 1,
+  transportResponsibility: 'farmer',
   transportInfo: '',
   housingProvided: false,
   mealsProvided: false,
+  contactName: '',
+  phone: '',
   whatsapp: '',
   notes: '',
 };
 
+const phoneRegex = /^\+?[0-9]{8,15}$/;
+const historyKey = 'farmerRequests_history';
+
 const FarmerRequestPage = () => {
-  const navigate = useNavigate();
-  const { isUserAuthenticated, currentUser } = useAuth();
+  const { t } = useLanguage();
   const [form, setForm] = useState(initialState);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [requestId, setRequestId] = useState('');
   const [submittedData, setSubmittedData] = useState(null);
   const [requestHistory, setRequestHistory] = useState([]);
-  const hasShownAuthPromptRef = useRef(false);
-
-  const historyKey = useMemo(() => {
-    if (!currentUser?.email) return '';
-    return `workerRequests_${currentUser.email.toLowerCase()}`;
-  }, [currentUser?.email]);
 
   useEffect(() => {
-    if (!isUserAuthenticated || !historyKey) {
-      setRequestHistory([]);
-      return;
-    }
     const saved = JSON.parse(localStorage.getItem(historyKey) || '[]');
     setRequestHistory(saved);
-  }, [historyKey, isUserAuthenticated]);
-
-  useEffect(() => {
-    if (!isUserAuthenticated && !hasShownAuthPromptRef.current) {
-      hasShownAuthPromptRef.current = true;
-      promptAuthRequired(navigate);
-    }
-  }, [isUserAuthenticated, navigate]);
+  }, []);
 
   const validate = () => {
-    if (!form.workType || !form.location || !form.startDate || !form.endDate || !form.transportInfo || !form.whatsapp) {
-      return 'Veuillez remplir tous les champs obligatoires.';
+    if (!form.workType || !form.location || !form.startDate || !form.endDate || !form.contactName) {
+      return t('farmerRequest.errRequired');
+    }
+    if (!phoneRegex.test(form.phone) || !phoneRegex.test(form.whatsapp)) {
+      return t('farmerRequest.errPhone');
     }
     if (new Date(form.endDate) < new Date(form.startDate)) {
-      return 'La date de fin ne peut pas être avant la date de début.';
+      return t('farmerRequest.errDate');
     }
     if (Number(form.workersNeeded) < 1) {
-      return 'Le nombre de travailleurs doit être au minimum de 1.';
+      return t('farmerRequest.errWorkers');
     }
     return '';
   };
@@ -76,141 +65,232 @@ const FarmerRequestPage = () => {
     try {
       const payload = { ...form };
       const { data } = await api.post('/requests', payload);
-      setSuccess('Demande envoyée avec succès.');
+      setSuccess(t('farmerRequest.successMsg'));
       setRequestId(data.request?._id || '');
       setSubmittedData(payload);
 
-      if (historyKey) {
-        const newEntry = {
-          id: data.request?._id || `local-${Date.now()}`,
-          workType: payload.workType,
-          location: payload.location,
-          startDate: payload.startDate,
-          endDate: payload.endDate,
-          workersNeeded: payload.workersNeeded,
-          status: data.request?.status || 'new',
-          createdAt: data.request?.createdAt || new Date().toISOString(),
-        };
-        const updatedHistory = [newEntry, ...requestHistory];
-        localStorage.setItem(historyKey, JSON.stringify(updatedHistory));
-        setRequestHistory(updatedHistory);
-      }
+      const newEntry = {
+        id: data.request?._id || `local-${Date.now()}`,
+        workType: payload.workType,
+        location: payload.location,
+        startDate: payload.startDate,
+        endDate: payload.endDate,
+        workersNeeded: payload.workersNeeded,
+        status: data.request?.status || 'new',
+        createdAt: data.request?.createdAt || new Date().toISOString(),
+      };
+      const updatedHistory = [newEntry, ...requestHistory];
+      localStorage.setItem(historyKey, JSON.stringify(updatedHistory));
+      setRequestHistory(updatedHistory);
 
       setForm(initialState);
     } catch (err) {
-      setError(err.response?.data?.message || 'Échec de l’envoi de la demande.');
+      setError(err.response?.data?.message || t('farmerRequest.errSubmit'));
     }
   };
 
   const whatsappPayload = submittedData || form;
+  const adminWhatsApp = import.meta.env.VITE_ADMIN_WHATSAPP || whatsappPayload.whatsapp;
   const prefilledWhatsApp = encodeURIComponent(
-    `Demande de travailleurs${requestId ? ` #${requestId}` : ''}\nTravail: ${whatsappPayload.workType || '-'}\nLieu: ${whatsappPayload.location || '-'}\nDates: ${whatsappPayload.startDate || '-'} à ${whatsappPayload.endDate || '-'}\nTravailleurs demandés: ${whatsappPayload.workersNeeded || '-'}\nTransport: ${whatsappPayload.transportInfo || '-'}\nLogement: ${whatsappPayload.housingProvided ? 'Oui' : 'Non'}\nRepas: ${whatsappPayload.mealsProvided ? 'Oui' : 'Non'}\nNotes: ${whatsappPayload.notes || '-'}\nContact: ${whatsappPayload.whatsapp || '-'}`
+    `${t('farmerRequest.waTitle')}${requestId ? ` #${requestId}` : ''}` +
+      `\n${t('farmerRequest.waWork')}: ${whatsappPayload.workType || '-'}` +
+      `\n${t('farmerRequest.waLocation')}: ${whatsappPayload.location || '-'}` +
+      `\n${t('farmerRequest.waDates')}: ${whatsappPayload.startDate || '-'} ${t('farmerRequest.waTo')} ${whatsappPayload.endDate || '-'}` +
+      `\n${t('farmerRequest.waWorkersNeeded')}: ${whatsappPayload.workersNeeded || '-'}` +
+      `\n${t('farmerRequest.waTransport')}: ${whatsappPayload.transportResponsibility || '-'}` +
+      `\n${t('farmerRequest.waHousing')}: ${whatsappPayload.housingProvided ? t('farmerRequest.waYes') : t('farmerRequest.waNo')}` +
+      `\n${t('farmerRequest.waMeals')}: ${whatsappPayload.mealsProvided ? t('farmerRequest.waYes') : t('farmerRequest.waNo')}` +
+      `\n${t('farmerRequest.waContact')}: ${whatsappPayload.contactName || '-'} (${whatsappPayload.whatsapp || '-'})`
   );
-  const whatsappUrl = `https://wa.me/${(whatsappPayload.whatsapp || '').replace(/[^\d]/g, '')}?text=${prefilledWhatsApp}`;
-
-  if (!isUserAuthenticated) {
-    return (
-      <div className="card">
-        <h2>Demande de travailleurs</h2>
-        <p>
-          Pour utiliser le service et créer une demande de travailleurs, vous devez d’abord créer un
-          compte et vous connecter.
-        </p>
-        <div className="grid grid-2" style={{ marginTop: '1rem' }}>
-          <button onClick={() => promptAuthRequired(navigate)}>Se connecter / Créer un compte</button>
-          <button className="secondary" onClick={() => navigate('/directory')}>
-            Parcourir les travailleurs
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const whatsappUrl = `https://wa.me/${(adminWhatsApp || '').replace(/[^\d]/g, '')}?text=${prefilledWhatsApp}`;
 
   return (
-    <div className="card">
-      <h2>Créer une demande de travailleurs</h2>
-      {error && <p className="error">{error}</p>}
-      {success && <p className="success">{success}</p>}
-      <form onSubmit={handleSubmit} className="grid grid-2">
-        <div>
-          <label>Type de travail *</label>
-          <input value={form.workType} onChange={(e) => setForm({ ...form, workType: e.target.value })} placeholder="taille, récolte" />
+    <section className="mx-auto max-w-5xl px-4 pb-16 pt-6 sm:px-6 lg:px-8">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+        <div className="space-y-2">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-700">{t('farmerRequest.label')}</p>
+          <h1 className="text-3xl font-bold text-slate-900 sm:text-4xl">{t('farmerRequest.title')}</h1>
+          <p className="max-w-2xl text-sm text-slate-600">{t('farmerRequest.desc')}</p>
         </div>
-        <div>
-          <label>Lieu *</label>
-          <input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
+        <div className="rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-800 shadow-sm">
+          {t('farmerRequest.statusLabel')} : <strong>new</strong>
         </div>
-        <div>
-          <label>Date de début *</label>
-          <input type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} />
-        </div>
-        <div>
-          <label>Date de fin *</label>
-          <input type="date" value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })} />
-        </div>
-        <div>
-          <label>Nombre de travailleurs *</label>
-          <input type="number" min="1" value={form.workersNeeded} onChange={(e) => setForm({ ...form, workersNeeded: Number(e.target.value) })} />
-        </div>
-        <div>
-          <label>Informations transport *</label>
-          <input value={form.transportInfo} onChange={(e) => setForm({ ...form, transportInfo: e.target.value })} />
-        </div>
-        <div>
-          <label>Contact WhatsApp *</label>
-          <input value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} placeholder="+91..." />
-        </div>
-        <div>
-          <label>Notes (optionnel)</label>
-          <input value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
-        </div>
-        <div>
-          <label>
-            <input type="checkbox" checked={form.housingProvided} onChange={(e) => setForm({ ...form, housingProvided: e.target.checked })} /> Logement fourni
-          </label>
-        </div>
-        <div>
-          <label>
-            <input type="checkbox" checked={form.mealsProvided} onChange={(e) => setForm({ ...form, mealsProvided: e.target.checked })} /> Repas fournis
-          </label>
-        </div>
-        <div style={{ gridColumn: '1 / -1' }}>
-          <button type="submit">Soumettre la demande</button>
-        </div>
-      </form>
-      {success && (
-        <a href={whatsappUrl} target="_blank" rel="noreferrer">
-          <button style={{ marginTop: '0.75rem' }} className="secondary">Continuer sur WhatsApp</button>
-        </a>
-      )}
+      </div>
 
-      <div style={{ marginTop: '1rem' }}>
-        <h3>Historique de mes demandes</h3>
+      <div className="rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm">
+        {error && <p className="mb-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
+        {success && <p className="mb-4 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700">{success}</p>}
+
+        <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-1">
+            <label className="text-sm font-semibold text-slate-700">{t('farmerRequest.workType')}</label>
+            <input
+              value={form.workType}
+              onChange={(e) => setForm({ ...form, workType: e.target.value })}
+              placeholder={t('farmerRequest.workTypePlaceholder')}
+              className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm font-semibold text-slate-700">{t('farmerRequest.location')}</label>
+            <input
+              value={form.location}
+              onChange={(e) => setForm({ ...form, location: e.target.value })}
+              className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm font-semibold text-slate-700">{t('farmerRequest.startDate')}</label>
+            <input
+              type="date"
+              value={form.startDate}
+              onChange={(e) => setForm({ ...form, startDate: e.target.value })}
+              className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm font-semibold text-slate-700">{t('farmerRequest.endDate')}</label>
+            <input
+              type="date"
+              value={form.endDate}
+              onChange={(e) => setForm({ ...form, endDate: e.target.value })}
+              className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm font-semibold text-slate-700">{t('farmerRequest.workersNeeded')}</label>
+            <input
+              type="number"
+              min="1"
+              value={form.workersNeeded}
+              onChange={(e) => setForm({ ...form, workersNeeded: Number(e.target.value) })}
+              className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm font-semibold text-slate-700">{t('farmerRequest.transportResp')}</label>
+            <select
+              value={form.transportResponsibility}
+              onChange={(e) => setForm({ ...form, transportResponsibility: e.target.value })}
+              className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none"
+            >
+              <option value="farmer">{t('farmerRequest.transportFarmer')}</option>
+              <option value="worker">{t('farmerRequest.transportWorker')}</option>
+              <option value="shared">{t('farmerRequest.transportShared')}</option>
+              <option value="unsure">{t('farmerRequest.transportUnsure')}</option>
+            </select>
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm font-semibold text-slate-700">{t('farmerRequest.transportInfo')}</label>
+            <input
+              value={form.transportInfo}
+              onChange={(e) => setForm({ ...form, transportInfo: e.target.value })}
+              className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm font-semibold text-slate-700">{t('farmerRequest.contactName')}</label>
+            <input
+              value={form.contactName}
+              onChange={(e) => setForm({ ...form, contactName: e.target.value })}
+              className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm font-semibold text-slate-700">{t('farmerRequest.phone')}</label>
+            <input
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              placeholder="+212..."
+              className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm font-semibold text-slate-700">{t('farmerRequest.whatsapp')}</label>
+            <input
+              value={form.whatsapp}
+              onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
+              placeholder="+212..."
+              className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none"
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm font-semibold text-slate-700">{t('farmerRequest.notes')}</label>
+            <input
+              value={form.notes}
+              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none"
+            />
+          </div>
+          <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+            <input
+              type="checkbox"
+              checked={form.housingProvided}
+              onChange={(e) => setForm({ ...form, housingProvided: e.target.checked })}
+              className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+            />
+            <label className="text-sm font-semibold text-slate-700">{t('farmerRequest.housingProvided')}</label>
+          </div>
+          <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+            <input
+              type="checkbox"
+              checked={form.mealsProvided}
+              onChange={(e) => setForm({ ...form, mealsProvided: e.target.checked })}
+              className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+            />
+            <label className="text-sm font-semibold text-slate-700">{t('farmerRequest.mealsProvided')}</label>
+          </div>
+
+          <div className="md:col-span-2">
+            <button
+              type="submit"
+              className="inline-flex w-full items-center justify-center rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
+            >
+              {t('farmerRequest.submit')}
+            </button>
+          </div>
+        </form>
+
+        {success && (
+          <a href={whatsappUrl} target="_blank" rel="noreferrer">
+            <button className="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-amber-200 bg-amber-50 px-5 py-3 text-sm font-semibold text-amber-800 transition hover:border-amber-300">
+              {t('farmerRequest.continueWhatsApp')}
+            </button>
+          </a>
+        )}
+      </div>
+
+      <div className="mt-8 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-slate-900">{t('farmerRequest.historyTitle')}</h3>
+          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{t('farmerRequest.historyLocal')}</span>
+        </div>
         {requestHistory.length === 0 ? (
-          <p>Aucune demande enregistrée pour le moment.</p>
+          <p className="mt-3 text-sm text-slate-600">{t('farmerRequest.noHistory')}</p>
         ) : (
-          <div className="table-wrap" style={{ marginTop: '0.5rem' }}>
-            <table>
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full min-w-[520px] border-collapse">
               <thead>
-                <tr>
-                  <th>Travail</th>
-                  <th>Lieu</th>
-                  <th>Dates</th>
-                  <th>Travailleurs</th>
-                  <th>Statut</th>
+                <tr className="bg-slate-50 text-left text-sm text-slate-700">
+                  <th className="px-3 py-2">{t('farmerRequest.thWork')}</th>
+                  <th className="px-3 py-2">{t('farmerRequest.thLocation')}</th>
+                  <th className="px-3 py-2">{t('farmerRequest.thDates')}</th>
+                  <th className="px-3 py-2">{t('farmerRequest.thWorkers')}</th>
+                  <th className="px-3 py-2">{t('farmerRequest.thStatus')}</th>
                 </tr>
               </thead>
               <tbody>
                 {requestHistory.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.workType}</td>
-                    <td>{item.location}</td>
-                    <td>
-                      {new Date(item.startDate).toLocaleDateString()} -{' '}
-                      {new Date(item.endDate).toLocaleDateString()}
+                  <tr key={item.id} className="border-b border-slate-100 text-sm text-slate-700">
+                    <td className="px-3 py-2 font-semibold text-slate-900">{item.workType}</td>
+                    <td className="px-3 py-2">{item.location}</td>
+                    <td className="px-3 py-2">
+                      {new Date(item.startDate).toLocaleDateString()} - {new Date(item.endDate).toLocaleDateString()}
                     </td>
-                    <td>{item.workersNeeded}</td>
-                    <td>{item.status}</td>
+                    <td className="px-3 py-2">{item.workersNeeded}</td>
+                    <td className="px-3 py-2">
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold capitalize text-slate-700">{item.status}</span>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -218,7 +298,7 @@ const FarmerRequestPage = () => {
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 };
 

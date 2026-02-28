@@ -1,50 +1,60 @@
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { promptAuthRequired } from '../utils/authPrompt';
 import RequestWorkersCTA from './RequestWorkersCTA';
+import { useLanguage } from '../context/LanguageContext';
 
 const WorkerCard = ({ worker }) => {
-  const navigate = useNavigate();
-  const { isUserAuthenticated } = useAuth();
+  const { t } = useLanguage();
   const whatsappMessage = encodeURIComponent(
-    `Bonjour ${worker.name}, j’ai trouvé votre profil sur Agriculteurs & Travailleurs et je souhaite discuter d’une mission.`
+    t('workerCard.whatsappMessage').replace('{name}', worker.fullName || worker.name)
   );
-  const whatsappUrl = `https://wa.me/${worker.phone.replace(/[^\d]/g, '')}?text=${whatsappMessage}`;
-  const phoneUrl = `tel:${worker.phone.replace(/[^\d+]/g, '')}`;
+  const targetNumber = (worker.whatsapp || worker.phone || '').replace(/[^\d]/g, '');
+  const whatsappUrl = `https://wa.me/${targetNumber}?text=${whatsappMessage}`;
+  const phoneUrl = `tel:${(worker.phone || '').replace(/[^\d+]/g, '')}`;
 
   return (
-    <div className="card">
-      <h3>{worker.name}</h3>
-      <p><strong>Téléphone :</strong> {worker.phone}</p>
-      <p><strong>Expérience :</strong> {worker.experienceLevel}</p>
-      <p><strong>Disponibilité :</strong> {worker.availability}</p>
-      <p><strong>Transport :</strong> {worker.transportFlexibility}</p>
-      <div>
-        {worker.regions.map((region) => (
-          <span key={region} className="badge">{region}</span>
-        ))}
+    <div className="flex flex-col justify-between rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-slate-900">{worker.fullName || worker.name}</h3>
+          <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+            {worker.experienceLevel}
+          </span>
+        </div>
+        <p className="text-sm text-slate-600">{worker.location || worker.regions?.[0] || t('workerCard.locationNotProvided')}</p>
+        <div className="flex flex-wrap gap-2 text-xs text-slate-600">
+          <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold">{t('workerCard.dispoLabel')}: {worker.availability}</span>
+          <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold">
+            {t('workerCard.transportLabel')}: {worker.transportFlexibility || (worker.travelFlexible ? t('workerCard.flexible') : t('workerCard.no'))}
+          </span>
+        </div>
+
+        <div className="flex flex-wrap gap-2 pt-2">
+          {worker.regions.map((region) => (
+            <span key={region} className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+              {region}
+            </span>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-2 pt-1">
+          {worker.skills.map((skill) => (
+            <span key={skill} className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+              {skill}
+            </span>
+          ))}
+        </div>
       </div>
-      <div>
-        {worker.skills.map((skill) => (
-          <span key={skill} className="badge">{skill}</span>
-        ))}
-      </div>
-      <div className="grid" style={{ marginTop: '0.75rem' }}>
-        <RequestWorkersCTA className="w-full" />
-        {isUserAuthenticated ? (
-          <>
-            <a href={whatsappUrl} target="_blank" rel="noreferrer">
-              <button className="secondary">Contacter sur WhatsApp</button>
-            </a>
-            <a href={phoneUrl}>
-              <button>Appeler</button>
-            </a>
-          </>
-        ) : (
-          <button className="secondary" onClick={() => promptAuthRequired(navigate)}>
-            Se connecter pour contacter
+
+      <div className="mt-4 grid gap-2">
+        <RequestWorkersCTA className="w-full rounded-xl bg-amber-300 px-4 py-2.5 text-sm font-semibold text-emerald-900 shadow hover:-translate-y-0.5 hover:shadow-lg" />
+        <a href={whatsappUrl} target="_blank" rel="noreferrer">
+          <button className="w-full rounded-xl border border-emerald-200 px-4 py-2.5 text-sm font-semibold text-emerald-800 transition hover:border-emerald-400">
+            {t('workerCard.contactWhatsApp')}
           </button>
-        )}
+        </a>
+        <a href={phoneUrl}>
+          <button className="w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">
+            {t('workerCard.call')}
+          </button>
+        </a>
       </div>
     </div>
   );

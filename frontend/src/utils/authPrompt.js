@@ -1,13 +1,13 @@
 import Swal from 'sweetalert2';
 
-export const promptAuthRequired = async (navigate) => {
+export const promptAuthRequired = async (navigate, t) => {
   const result = await Swal.fire({
-    title: 'Accès requis',
-    text: 'Vous devez créer un compte ou vous connecter pour utiliser ce service.',
+    title: t ? t('authPrompt.title') : 'Accès requis',
+    text: t ? t('authPrompt.text') : 'Vous devez créer un compte ou vous connecter pour utiliser ce service.',
     icon: 'warning',
     showDenyButton: true,
-    confirmButtonText: 'Se connecter',
-    denyButtonText: 'Créer un compte',
+    confirmButtonText: t ? t('authPrompt.login') : 'Se connecter',
+    denyButtonText: t ? t('authPrompt.register') : 'Créer un compte',
     denyButtonColor: '#16a34a',
     confirmButtonColor: '#facc15',
     background: '#ffffff',

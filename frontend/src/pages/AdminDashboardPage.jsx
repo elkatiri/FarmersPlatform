@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { api, authHeaders } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const AdminDashboardPage = () => {
   const { token } = useAuth();
+  const { t } = useLanguage();
   const [workers, setWorkers] = useState([]);
   const [requests, setRequests] = useState([]);
   const [error, setError] = useState('');
@@ -20,7 +22,7 @@ const AdminDashboardPage = () => {
       setWorkers(pendingWorkersRes.data);
       setRequests(requestsRes.data);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to load admin data');
+      setError(err.response?.data?.message || t('admin.errLoad'));
     }
   };
 
@@ -56,47 +58,47 @@ const AdminDashboardPage = () => {
 
   return (
     <div>
-      <h2>Admin Dashboard</h2>
+      <h2>{t('admin.dashboardTitle')}</h2>
       {error && <p className="error">{error}</p>}
 
       <div className="card">
-        <h3>Export Data</h3>
+        <h3>{t('admin.exportTitle')}</h3>
         <div className="grid grid-2">
-          <button onClick={() => downloadExport('csv', 'workers')}>Export Workers CSV</button>
-          <button onClick={() => downloadExport('excel', 'workers')}>Export Workers Excel</button>
-          <button onClick={() => downloadExport('csv', 'requests')}>Export Requests CSV</button>
-          <button onClick={() => downloadExport('excel', 'requests')}>Export Requests Excel</button>
+          <button onClick={() => downloadExport('csv', 'workers')}>{t('admin.exportWorkersCSV')}</button>
+          <button onClick={() => downloadExport('excel', 'workers')}>{t('admin.exportWorkersExcel')}</button>
+          <button onClick={() => downloadExport('csv', 'requests')}>{t('admin.exportRequestsCSV')}</button>
+          <button onClick={() => downloadExport('excel', 'requests')}>{t('admin.exportRequestsExcel')}</button>
         </div>
       </div>
 
       <div className="card table-wrap">
-        <h3>Pending Worker Profiles</h3>
+        <h3>{t('admin.pendingTitle')}</h3>
         <table>
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Phone</th>
-              <th>Regions</th>
-              <th>Skills</th>
-              <th>Actions</th>
+              <th>{t('admin.thName')}</th>
+              <th>{t('admin.thPhone')}</th>
+              <th>{t('admin.thRegions')}</th>
+              <th>{t('admin.thSkills')}</th>
+              <th>{t('admin.thActions')}</th>
             </tr>
           </thead>
           <tbody>
             {workers.length === 0 ? (
               <tr>
-                <td colSpan="5">No pending workers.</td>
+                <td colSpan="5">{t('admin.noPending')}</td>
               </tr>
             ) : (
               workers.map((worker) => (
                 <tr key={worker._id}>
-                  <td>{worker.name}</td>
+                  <td>{worker.fullName || worker.name}</td>
                   <td>{worker.phone}</td>
                   <td>{worker.regions.join(', ')}</td>
                   <td>{worker.skills.join(', ')}</td>
                   <td style={{ display: 'flex', gap: '0.4rem' }}>
-                    <button onClick={() => updateWorkerStatus(worker._id, 'approved')}>Approve</button>
+                    <button onClick={() => updateWorkerStatus(worker._id, 'approved')}>{t('admin.approve')}</button>
                     <button className="secondary" onClick={() => updateWorkerStatus(worker._id, 'rejected')}>
-                      Reject
+                      {t('admin.reject')}
                     </button>
                   </td>
                 </tr>
@@ -107,21 +109,21 @@ const AdminDashboardPage = () => {
       </div>
 
       <div className="card table-wrap">
-        <h3>Farmer Requests</h3>
+        <h3>{t('admin.requestsTitle')}</h3>
         <table>
           <thead>
             <tr>
-              <th>Work</th>
-              <th>Location</th>
-              <th>Workers</th>
-              <th>Dates</th>
-              <th>Status</th>
+              <th>{t('admin.thWork')}</th>
+              <th>{t('admin.thLocation')}</th>
+              <th>{t('admin.thWorkers')}</th>
+              <th>{t('admin.thDates')}</th>
+              <th>{t('admin.thStatus')}</th>
             </tr>
           </thead>
           <tbody>
             {requests.length === 0 ? (
               <tr>
-                <td colSpan="5">No requests found.</td>
+                <td colSpan="5">{t('admin.noRequests')}</td>
               </tr>
             ) : (
               requests.map((request) => (
@@ -137,9 +139,10 @@ const AdminDashboardPage = () => {
                       value={request.status}
                       onChange={(e) => updateRequestStatus(request._id, e.target.value)}
                     >
-                      <option value="new">new</option>
-                      <option value="matched">matched</option>
-                      <option value="closed">closed</option>
+                      <option value="new">{t('admin.statusNew')}</option>
+                      <option value="in_progress">{t('admin.statusInProgress')}</option>
+                      <option value="matched">{t('admin.statusMatched')}</option>
+                      <option value="closed">{t('admin.statusClosed')}</option>
                     </select>
                   </td>
                 </tr>

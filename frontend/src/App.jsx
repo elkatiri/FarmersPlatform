@@ -16,13 +16,14 @@ import Footer from './components/Footer';
 
 const App = () => {
   const { pathname } = useLocation();
-  const hideNavbar = pathname === '/' || pathname === '/admin';
+  const showNavbar = pathname !== '/admin';
+  const needsOffset = showNavbar && pathname !== '/';
 
   return (
     <div>
-      {!hideNavbar && <Navbar />}
+      {showNavbar && <Navbar />}
 
-      <main className="main-container" style={{ marginTop: hideNavbar ? 0 : '96px' }}>
+      <main className="main-container" style={{ marginTop: needsOffset ? '96px' : 0 }}>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/request-worker" element={<FarmerRequestPage />} />

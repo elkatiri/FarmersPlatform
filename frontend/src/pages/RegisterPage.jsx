@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
   const { registerUser } = useAuth();
+  const { t } = useLanguage();
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
@@ -22,17 +24,17 @@ const RegisterPage = () => {
     setSuccess('');
 
     if (!form.firstName || !form.lastName || !form.email || !form.phone || !form.password || !form.confirmPassword) {
-      setError('Veuillez remplir tous les champs.');
+      setError(t('register.errRequired'));
       return;
     }
 
     if (form.password.length < 6) {
-      setError('Le mot de passe doit contenir au moins 6 caractères.');
+      setError(t('register.errPasswordLength'));
       return;
     }
 
     if (form.password !== form.confirmPassword) {
-      setError('Les mots de passe ne correspondent pas.');
+      setError(t('register.errPasswordMatch'));
       return;
     }
 
@@ -49,15 +51,15 @@ const RegisterPage = () => {
       return;
     }
 
-    setSuccess('Compte créé avec succès. Vous pouvez maintenant vous connecter.');
+    setSuccess(t('register.successMsg'));
     setTimeout(() => navigate('/login'), 1000);
   };
 
   return (
     <section className="mx-auto w-full max-w-2xl rounded-2xl border border-green-100 bg-white p-6 shadow-sm sm:p-8">
-      <h1 className="text-2xl font-bold text-[#166534]">Créer un compte utilisateur</h1>
+      <h1 className="text-2xl font-bold text-[#166534]">{t('register.title')}</h1>
       <p className="mt-2 text-sm text-gray-600">
-        Créez votre compte pour accéder au service et envoyer vos demandes.
+        {t('register.desc')}
       </p>
 
       <form onSubmit={handleSubmit} className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -65,7 +67,7 @@ const RegisterPage = () => {
         {success ? <p className="sm:col-span-2 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700">{success}</p> : null}
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Prénom</label>
+          <label className="mb-1 block text-sm font-medium text-gray-700">{t('register.firstName')}</label>
           <input
             type="text"
             value={form.firstName}
@@ -74,7 +76,7 @@ const RegisterPage = () => {
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Nom</label>
+          <label className="mb-1 block text-sm font-medium text-gray-700">{t('register.lastName')}</label>
           <input
             type="text"
             value={form.lastName}
@@ -83,7 +85,7 @@ const RegisterPage = () => {
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Email</label>
+          <label className="mb-1 block text-sm font-medium text-gray-700">{t('register.email')}</label>
           <input
             type="email"
             value={form.email}
@@ -92,7 +94,7 @@ const RegisterPage = () => {
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Téléphone</label>
+          <label className="mb-1 block text-sm font-medium text-gray-700">{t('register.phone')}</label>
           <input
             type="text"
             value={form.phone}
@@ -101,7 +103,7 @@ const RegisterPage = () => {
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Mot de passe</label>
+          <label className="mb-1 block text-sm font-medium text-gray-700">{t('register.password')}</label>
           <input
             type="password"
             value={form.password}
@@ -110,7 +112,7 @@ const RegisterPage = () => {
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">Confirmer le mot de passe</label>
+          <label className="mb-1 block text-sm font-medium text-gray-700">{t('register.confirmPassword')}</label>
           <input
             type="password"
             value={form.confirmPassword}
@@ -124,7 +126,7 @@ const RegisterPage = () => {
             type="submit"
             className="inline-flex w-full items-center justify-center rounded-xl bg-[#16a34a] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#15803d]"
           >
-            Créer mon compte
+            {t('register.submit')}
           </button>
         </div>
       </form>
@@ -134,7 +136,7 @@ const RegisterPage = () => {
           to="/login"
           className="inline-flex w-full items-center justify-center rounded-xl border-2 border-[#facc15] px-5 py-3 text-sm font-semibold text-[#166534] transition hover:bg-[#fef9c3]"
         >
-          J’ai déjà un compte
+          {t('register.hasAccount')}
         </Link>
       </div>
     </section>
