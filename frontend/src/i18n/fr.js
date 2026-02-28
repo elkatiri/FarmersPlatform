@@ -234,6 +234,8 @@ const fr = {
     password: 'Mot de passe',
     submit: 'Se connecter',
     createAccount: 'Créer un compte',
+    adminHint: 'Vous êtes admin ?',
+    adminLink: 'Accéder à la connexion admin',
     errRequired: 'Veuillez remplir tous les champs.',
     // Benefit cards
     benefit1Title: 'Sans friction',

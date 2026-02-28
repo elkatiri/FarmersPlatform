@@ -233,6 +233,8 @@ const ar = {
     password: 'كلمة المرور',
     submit: 'تسجيل الدخول',
     createAccount: 'إنشاء حساب',
+    adminHint: 'هل أنت مشرف؟',
+    adminLink: 'الذهاب إلى تسجيل دخول الإدارة',
     errRequired: 'يرجى ملء جميع الحقول.',
     benefit1Title: 'بدون تعقيد',
     benefit1Desc: 'لا دفع إلكتروني: نحن نربط، وأنتم تتفقون خارج المنصة.',

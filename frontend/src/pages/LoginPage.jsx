@@ -79,6 +79,13 @@ const LoginPage = () => {
             >
               {t('login.createAccount')}
             </Link>
+
+            <p className="text-center text-sm text-slate-600">
+              {t('login.adminHint')}{' '}
+              <Link to="/admin/login" className="font-semibold text-emerald-700 hover:text-emerald-800">
+                {t('login.adminLink')}
+              </Link>
+            </p>
           </div>
         </div>
 
