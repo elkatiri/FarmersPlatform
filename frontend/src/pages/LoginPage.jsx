@@ -1,22 +1,40 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { LuEye, LuEyeOff } from 'react-icons/lu';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { api } from '../services/api';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { loginUser } = useAuth();
+  const { loginUser, login } = useAuth();
   const { t } = useLanguage();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
     if (!form.email || !form.password) {
       setError(t('login.errRequired'));
       return;
+    }
+
+    // Try admin login first
+    try {
+      const { data } = await api.post('/auth/login', {
+        email: form.email,
+        password: form.password,
+      });
+      if (data?.token) {
+        login(data.token);
+        navigate('/admin');
+        return;
+      }
+    } catch (_) {
+      // ignore and fall back to user login
     }
 
     const result = loginUser(form);
@@ -55,13 +73,23 @@ const LoginPage = () => {
             </div>
             <div>
               <label className="mb-1 block text-sm font-semibold text-slate-700">{t('login.password')}</label>
-              <input
-                type="password"
-                value={form.password}
-                onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
-                placeholder="••••••••"
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={form.password}
+                  onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
+                  placeholder="••••••••"
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 pr-11 text-sm focus:border-emerald-500 focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-600"
+                  aria-label="Toggle password visibility"
+                >
+                  {showPassword ? <LuEyeOff className="h-4 w-4" /> : <LuEye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
 
             <button
@@ -80,12 +108,7 @@ const LoginPage = () => {
               {t('login.createAccount')}
             </Link>
 
-            <p className="text-center text-sm text-slate-600">
-              {t('login.adminHint')}{' '}
-              <Link to="/admin/login" className="font-semibold text-emerald-700 hover:text-emerald-800">
-                {t('login.adminLink')}
-              </Link>
-            </p>
+            {/* Admins use the same form; no separate hint/link needed. */}
           </div>
         </div>
 

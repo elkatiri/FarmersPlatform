@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
+import { promptAuthRequired } from '../utils/authPrompt';
 
 const initialState = {
   workType: '',
@@ -19,21 +22,71 @@ const initialState = {
 };
 
 const phoneRegex = /^\+?[0-9]{8,15}$/;
-const historyKey = 'farmerRequests_history';
 
 const FarmerRequestPage = () => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
+  const { isUserAuthenticated, currentUser } = useAuth();
   const [form, setForm] = useState(initialState);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [requestId, setRequestId] = useState('');
   const [submittedData, setSubmittedData] = useState(null);
   const [requestHistory, setRequestHistory] = useState([]);
+  const [authPromptShown, setAuthPromptShown] = useState(false);
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem(historyKey) || '[]');
-    setRequestHistory(saved);
-  }, []);
+    if (!isUserAuthenticated && !authPromptShown) {
+      setAuthPromptShown(true);
+      promptAuthRequired(navigate, t);
+    }
+  }, [isUserAuthenticated, authPromptShown, navigate, t]);
+
+  useEffect(() => {
+    const syncContactFromUser = () => {
+      if (!currentUser) return;
+      setForm((prev) => ({
+        ...prev,
+        contactName:
+          prev.contactName || `${currentUser.firstName || ''} ${currentUser.lastName || ''}`.trim() || prev.contactName,
+        phone: prev.phone || currentUser.phone || prev.phone,
+        whatsapp: prev.whatsapp || currentUser.phone || prev.whatsapp,
+      }));
+    };
+
+    syncContactFromUser();
+  }, [currentUser]);
+
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        if (!currentUser?.email) {
+          setRequestHistory([]);
+          return;
+        }
+
+        const { data } = await api.get('/requests/mine', {
+          params: { email: currentUser.email },
+        });
+
+        const normalized = (Array.isArray(data) ? data : []).map((item) => ({
+          id: item._id,
+          workType: item.workType,
+          location: item.location,
+          startDate: item.startDate,
+          endDate: item.endDate,
+          workersNeeded: item.workersNeeded,
+          status: item.status,
+          createdAt: item.createdAt,
+        }));
+
+        setRequestHistory(normalized);
+      } catch {
+        setRequestHistory([]);
+      }
+    };
+    loadHistory();
+  }, [currentUser]);
 
   const validate = () => {
     if (!form.workType || !form.location || !form.startDate || !form.endDate || !form.contactName) {
@@ -56,6 +109,11 @@ const FarmerRequestPage = () => {
     setError('');
     setSuccess('');
 
+    if (!isUserAuthenticated) {
+      await promptAuthRequired(navigate, t);
+      return;
+    }
+
     const validationError = validate();
     if (validationError) {
       setError(validationError);
@@ -63,25 +121,37 @@ const FarmerRequestPage = () => {
     }
 
     try {
-      const payload = { ...form };
+      const payload = {
+        ...form,
+        userEmail: currentUser?.email || undefined,
+        userName:
+          `${currentUser?.firstName || ''} ${currentUser?.lastName || ''}`.trim() || form.contactName || undefined,
+      };
       const { data } = await api.post('/requests', payload);
       setSuccess(t('farmerRequest.successMsg'));
       setRequestId(data.request?._id || '');
       setSubmittedData(payload);
-
-      const newEntry = {
-        id: data.request?._id || `local-${Date.now()}`,
-        workType: payload.workType,
-        location: payload.location,
-        startDate: payload.startDate,
-        endDate: payload.endDate,
-        workersNeeded: payload.workersNeeded,
-        status: data.request?.status || 'new',
-        createdAt: data.request?.createdAt || new Date().toISOString(),
-      };
-      const updatedHistory = [newEntry, ...requestHistory];
-      localStorage.setItem(historyKey, JSON.stringify(updatedHistory));
-      setRequestHistory(updatedHistory);
+      // Refresh history from backend so status tracking stays up to date
+      if (currentUser?.email) {
+        try {
+          const historyRes = await api.get('/requests/mine', {
+            params: { email: currentUser.email },
+          });
+          const normalized = (Array.isArray(historyRes.data) ? historyRes.data : []).map((item) => ({
+            id: item._id,
+            workType: item.workType,
+            location: item.location,
+            startDate: item.startDate,
+            endDate: item.endDate,
+            workersNeeded: item.workersNeeded,
+            status: item.status,
+            createdAt: item.createdAt,
+          }));
+          setRequestHistory(normalized);
+        } catch {
+          // ignore, keep existing history state
+        }
+      }
 
       setForm(initialState);
     } catch (err) {
@@ -103,6 +173,22 @@ const FarmerRequestPage = () => {
       `\n${t('farmerRequest.waContact')}: ${whatsappPayload.contactName || '-'} (${whatsappPayload.whatsapp || '-'})`
   );
   const whatsappUrl = `https://wa.me/${(adminWhatsApp || '').replace(/[^\d]/g, '')}?text=${prefilledWhatsApp}`;
+
+  const handleWhatsAppContinue = () => {
+    if (!whatsappUrl) return;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  const getRequestStatusLabel = (status) => {
+    const keyMap = {
+      new: 'statusNew',
+      in_progress: 'statusInProgress',
+      matched: 'statusMatched',
+      closed: 'statusClosed',
+    };
+    const key = keyMap[status] || null;
+    return key ? t(`admin.${key}`) : status;
+  };
 
   return (
     <section className="mx-auto max-w-5xl px-4 pb-16 pt-6 sm:px-6 lg:px-8">
@@ -241,23 +327,23 @@ const FarmerRequestPage = () => {
             <label className="text-sm font-semibold text-slate-700">{t('farmerRequest.mealsProvided')}</label>
           </div>
 
-          <div className="md:col-span-2">
+          <div className="md:col-span-2 flex flex-col gap-3 sm:flex-row sm:items-center">
             <button
               type="submit"
               className="inline-flex w-full items-center justify-center rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
             >
               {t('farmerRequest.submit')}
             </button>
-          </div>
-        </form>
-
-        {success && (
-          <a href={whatsappUrl} target="_blank" rel="noreferrer">
-            <button className="mt-3 inline-flex w-full items-center justify-center rounded-xl border border-amber-200 bg-amber-50 px-5 py-3 text-sm font-semibold text-amber-800 transition hover:border-amber-300">
+            <button
+              type="button"
+              onClick={handleWhatsAppContinue}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-800 transition hover:border-emerald-400 hover:bg-emerald-100"
+            >
+              <span>📲</span>
               {t('farmerRequest.continueWhatsApp')}
             </button>
-          </a>
-        )}
+          </div>
+        </form>
       </div>
 
       <div className="mt-8 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
@@ -289,7 +375,9 @@ const FarmerRequestPage = () => {
                     </td>
                     <td className="px-3 py-2">{item.workersNeeded}</td>
                     <td className="px-3 py-2">
-                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold capitalize text-slate-700">{item.status}</span>
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold capitalize text-slate-700">
+                        {getRequestStatusLabel(item.status)}
+                      </span>
                     </td>
                   </tr>
                 ))}

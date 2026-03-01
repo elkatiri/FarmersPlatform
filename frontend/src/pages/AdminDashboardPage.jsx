@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 
 const AdminDashboardPage = () => {
-  const { token, logout } = useAuth();
+  const { token } = useAuth();
   const { t } = useLanguage();
   const [workers, setWorkers] = useState([]);
   const [requests, setRequests] = useState([]);
@@ -57,8 +57,7 @@ const AdminDashboardPage = () => {
   };
 
   return (
-    <section className="min-h-[80vh] bg-linear-to-br from-emerald-50 via-white to-amber-50 px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-6xl space-y-6">
+    <section className="space-y-6">
         <header className="rounded-3xl border border-emerald-100 bg-white p-6 shadow-sm sm:p-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
@@ -66,13 +65,6 @@ const AdminDashboardPage = () => {
               <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">{t('admin.dashboardTitle')}</h1>
               <p className="mt-2 text-sm text-slate-600">{t('admin.exportTitle')} · {t('admin.pendingTitle')} · {t('admin.requestsTitle')}</p>
             </div>
-
-            <button
-              onClick={logout}
-              className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
-            >
-              {t('nav.logout')}
-            </button>
           </div>
         </header>
 
@@ -188,13 +180,14 @@ const AdminDashboardPage = () => {
                   <th className="px-4 py-3">{t('admin.thLocation')}</th>
                   <th className="px-4 py-3">{t('admin.thWorkers')}</th>
                   <th className="px-4 py-3">{t('admin.thDates')}</th>
+                  <th className="px-4 py-3">{t('admin.thUser')}</th>
                   <th className="px-4 py-3">{t('admin.thStatus')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
                 {requests.length === 0 ? (
                   <tr>
-                    <td className="px-4 py-4 text-slate-600" colSpan="5">{t('admin.noRequests')}</td>
+                    <td className="px-4 py-4 text-slate-600" colSpan="6">{t('admin.noRequests')}</td>
                   </tr>
                 ) : (
                   requests.map((request) => (
@@ -204,6 +197,9 @@ const AdminDashboardPage = () => {
                       <td className="px-4 py-3 text-slate-700">{request.workersNeeded}</td>
                       <td className="px-4 py-3 text-slate-700">
                         {new Date(request.startDate).toLocaleDateString()} - {new Date(request.endDate).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-3 text-slate-700">
+                        {request.userEmail || request.contactName || '-'}
                       </td>
                       <td className="px-4 py-3">
                         <select
@@ -224,7 +220,6 @@ const AdminDashboardPage = () => {
             </table>
           </div>
         </section>
-      </div>
     </section>
   );
 };

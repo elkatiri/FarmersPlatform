@@ -1,6 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
+import { promptAuthRequired } from '../utils/authPrompt';
 
 const initialState = {
   fullName: '',
@@ -20,14 +23,30 @@ const initialState = {
 
 const WorkerProfilePage = () => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
+  const { isUserAuthenticated } = useAuth();
   const [form, setForm] = useState(initialState);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  const [authPromptShown, setAuthPromptShown] = useState(false);
+
+  useEffect(() => {
+    if (!isUserAuthenticated && !authPromptShown) {
+      setAuthPromptShown(true);
+      promptAuthRequired(navigate, t);
+    }
+  }, [isUserAuthenticated, authPromptShown, navigate, t]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
+
+    if (!isUserAuthenticated) {
+      await promptAuthRequired(navigate, t);
+      return;
+    }
 
     if (!form.fullName || !form.phone || !form.whatsapp || !form.location || !form.regions || !form.skills) {
       setError(t('workerProfile.errRequired'));

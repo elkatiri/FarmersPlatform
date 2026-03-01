@@ -16,6 +16,8 @@ const farmerRequestSchema = new mongoose.Schema(
     transportInfo: { type: String, trim: true },
     housingProvided: { type: Boolean, default: false },
     mealsProvided: { type: Boolean, default: false },
+    userEmail: { type: String, trim: true },
+    userName: { type: String, trim: true },
     contactName: { type: String, required: true, trim: true },
     phone: { type: String, required: true, trim: true },
     whatsapp: { type: String, required: true, trim: true },

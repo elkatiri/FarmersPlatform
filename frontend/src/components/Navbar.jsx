@@ -45,9 +45,9 @@ const Navbar = () => {
       >
         {/* Logo */}
         <Link to="/" className="group flex items-center gap-2.5">
-          <span className="inline-flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-white/15 ring-1 ring-white/25 transition-transform duration-200 group-hover:scale-105">
-            <img src={logo} alt={t('appName')} className="h-full w-full object-cover" />
-          </span>
+          
+            {/* <img src={logo} alt={t('appName')} className="h-8 w-8 object-cover" />
+           */}
           <span className="hidden text-base font-bold tracking-tight text-white sm:block">{t('appName')}</span>
         </Link>
 

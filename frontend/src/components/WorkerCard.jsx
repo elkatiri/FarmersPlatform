@@ -1,8 +1,10 @@
 import RequestWorkersCTA from './RequestWorkersCTA';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 const WorkerCard = ({ worker }) => {
   const { t } = useLanguage();
+  const { isAuthenticated } = useAuth();
   const whatsappMessage = encodeURIComponent(
     t('workerCard.whatsappMessage').replace('{name}', worker.fullName || worker.name)
   );
@@ -45,16 +47,20 @@ const WorkerCard = ({ worker }) => {
 
       <div className="mt-4 grid gap-2">
         <RequestWorkersCTA className="w-full rounded-xl bg-amber-300 px-4 py-2.5 text-sm font-semibold text-emerald-900 shadow hover:-translate-y-0.5 hover:shadow-lg" />
-        <a href={whatsappUrl} target="_blank" rel="noreferrer">
-          <button className="w-full rounded-xl border border-emerald-200 px-4 py-2.5 text-sm font-semibold text-emerald-800 transition hover:border-emerald-400">
-            {t('workerCard.contactWhatsApp')}
-          </button>
-        </a>
-        <a href={phoneUrl}>
-          <button className="w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">
-            {t('workerCard.call')}
-          </button>
-        </a>
+        {isAuthenticated && (
+          <>
+            <a href={whatsappUrl} target="_blank" rel="noreferrer">
+              <button className="w-full rounded-xl border border-emerald-200 px-4 py-2.5 text-sm font-semibold text-emerald-800 transition hover:border-emerald-400">
+                {t('workerCard.contactWhatsApp')}
+              </button>
+            </a>
+            <a href={phoneUrl}>
+              <button className="w-full rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700">
+                {t('workerCard.call')}
+              </button>
+            </a>
+          </>
+        )}
       </div>
     </div>
   );

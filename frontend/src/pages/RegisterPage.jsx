@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { LuEye, LuEyeOff } from 'react-icons/lu';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -17,6 +18,7 @@ const RegisterPage = () => {
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -104,17 +106,27 @@ const RegisterPage = () => {
         </div>
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-700">{t('register.password')}</label>
-          <input
-            type="password"
-            value={form.password}
-            onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
-            className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-[#16a34a] focus:outline-none"
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={form.password}
+              onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
+              className="w-full rounded-xl border border-gray-200 px-4 py-3 pr-11 focus:border-[#16a34a] focus:outline-none"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-600"
+              aria-label="Toggle password visibility"
+            >
+              {showPassword ? <LuEyeOff className="h-4 w-4" /> : <LuEye className="h-4 w-4" />}
+            </button>
+          </div>
         </div>
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-700">{t('register.confirmPassword')}</label>
           <input
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             value={form.confirmPassword}
             onChange={(e) => setForm((prev) => ({ ...prev, confirmPassword: e.target.value }))}
             className="w-full rounded-xl border border-gray-200 px-4 py-3 focus:border-[#16a34a] focus:outline-none"

@@ -8,15 +8,20 @@ import WorkerProfilePage from './pages/WorkerProfilePage';
 import DirectoryPage from './pages/DirectoryPage';
 import FAQPage from './pages/FAQPage';
 import ContactPage from './pages/ContactPage';
-import AdminLoginPage from './pages/AdminLoginPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
+import AdminLayout from './pages/AdminLayout';
+import AdminUsersPage from './pages/AdminUsersPage';
+import AdminFaqsPage from './pages/AdminFaqsPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import Footer from './components/Footer';
+import FloatingWhatsAppButton from './components/FloatingWhatsAppButton';
 
 const App = () => {
   const { pathname } = useLocation();
-  const showNavbar = pathname !== '/admin';
+  const isAdminRoute = pathname.startsWith('/admin');
+  const showNavbar = !isAdminRoute;
+  const showFooter = !isAdminRoute;
   const needsOffset = showNavbar && pathname !== '/';
 
   return (
@@ -33,19 +38,23 @@ const App = () => {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route
             path="/admin"
             element={
               <ProtectedRoute>
-                <AdminDashboardPage />
+                <AdminLayout />
               </ProtectedRoute>
             }
-          />
+          >
+            <Route index element={<AdminDashboardPage />} />
+            <Route path="users" element={<AdminUsersPage />} />
+            <Route path="faqs" element={<AdminFaqsPage />} />
+          </Route>
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>
-      <Footer />
+      {showFooter ? <Footer /> : null}
+      <FloatingWhatsAppButton />
     </div>
   );
 };

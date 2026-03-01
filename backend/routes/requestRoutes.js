@@ -1,6 +1,11 @@
 const express = require('express');
 const { body } = require('express-validator');
-const { createFarmerRequest, getFarmerRequests, updateRequestStatus } = require('../controllers/requestController');
+const {
+  createFarmerRequest,
+  getFarmerRequests,
+  getMyFarmerRequests,
+  updateRequestStatus,
+} = require('../controllers/requestController');
 const { adminAuth } = require('../middleware/auth');
 const { publicPostLimiter } = require('../middleware/rateLimit');
 
@@ -30,6 +35,7 @@ router.post(
 );
 
 router.get('/', adminAuth, getFarmerRequests);
+router.get('/mine', getMyFarmerRequests);
 router.patch('/:id/status', adminAuth, updateRequestStatus);
 
 module.exports = router;

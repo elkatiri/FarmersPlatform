@@ -5,6 +5,9 @@ const {
   getApprovedWorkers,
   getPendingWorkers,
   updateWorkerStatus,
+  getAllWorkers,
+  updateWorkerProfile,
+  deleteWorkerProfile,
 } = require('../controllers/workerController');
 const { adminAuth } = require('../middleware/auth');
 const { publicPostLimiter } = require('../middleware/rateLimit');
@@ -41,6 +44,9 @@ router.post(
 
 router.get('/', getApprovedWorkers);
 router.get('/pending', adminAuth, getPendingWorkers);
+router.get('/all', adminAuth, getAllWorkers);
 router.patch('/:id/status', adminAuth, updateWorkerStatus);
+router.patch('/:id', adminAuth, updateWorkerProfile);
+router.delete('/:id', adminAuth, deleteWorkerProfile);
 
 module.exports = router;

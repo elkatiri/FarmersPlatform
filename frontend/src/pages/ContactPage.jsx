@@ -4,6 +4,7 @@ import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { promptAuthRequired } from '../utils/authPrompt';
 import { useLanguage } from '../context/LanguageContext';
+import { FaWhatsapp } from 'react-icons/fa';
 
 const ContactPage = () => {
   const navigate = useNavigate();
@@ -58,14 +59,21 @@ const ContactPage = () => {
           <p className="mt-2 text-sm text-slate-600">{t('contact.whatsappDesc')}</p>
           <div className="mt-4 flex flex-col gap-3">
             {isUserAuthenticated ? (
-              <a href={whatsappUrl} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700">
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
+              >
+                <FaWhatsapp className="text-white" />
                 {t('contact.openWhatsApp')}
               </a>
             ) : (
               <button
-                className="inline-flex items-center justify-center rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50"
                 onClick={() => promptAuthRequired(navigate, t)}
               >
+                <FaWhatsapp className="text-emerald-600" />
                 {t('contact.loginForWhatsApp')}
               </button>
             )}

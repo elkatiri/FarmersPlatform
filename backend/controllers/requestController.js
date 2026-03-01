@@ -41,6 +41,21 @@ const getFarmerRequests = async (req, res) => {
   }
 };
 
+const getMyFarmerRequests = async (req, res) => {
+  try {
+    const { email } = req.query;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
+    const requests = await FarmerRequest.find({ userEmail: email }).sort({ createdAt: -1 });
+    return res.json(requests);
+  } catch (error) {
+    return res.status(500).json({ message: 'Unable to fetch requests' });
+  }
+};
+
 const updateRequestStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -65,5 +80,6 @@ const updateRequestStatus = async (req, res) => {
 module.exports = {
   createFarmerRequest,
   getFarmerRequests,
+  getMyFarmerRequests,
   updateRequestStatus,
 };
