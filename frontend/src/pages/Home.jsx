@@ -45,42 +45,29 @@ function useCountUp(target, duration = 1400) {
 }
 
 /* ─── single stat card ─── */
-function StatCard({ stat, index }) {
+function StatCard({ stat, index, liveLabel }) {
   const [val, ref] = useCountUp(stat.value, 1200 + index * 150);
-  const Icon = stat.icon;
+  const Icon = stat.icon || LuUsers;
 
   return (
     <div
       ref={ref}
-      className="stat-card group relative overflow-hidden rounded-2xl border border-slate-100 bg-white px-6 py-7 shadow-sm"
+      className="stat-card group relative overflow-hidden rounded-2xl border border-white/60 bg-white/80 p-5 shadow-lg shadow-emerald-100/40 ring-1 ring-emerald-100 backdrop-blur"
       style={{ animationDelay: `${index * 100}ms` }}
     >
-      {/* animated gradient line top */}
-      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-emerald-400 via-amber-400 to-emerald-500 origin-left scale-x-0 transition-transform duration-500 group-hover:scale-x-100" />
-
-      {/* glow blob */}
-      <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-emerald-400/8 blur-2xl transition-all duration-500 group-hover:bg-emerald-400/20 group-hover:scale-150" />
-
-      <div className="relative flex flex-col gap-4">
-        {/* icon badge */}
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 ring-1 ring-inset ring-emerald-100/80 transition-all duration-300 group-hover:bg-emerald-100 group-hover:scale-110 group-hover:rotate-3">
-          {typeof Icon === 'function' ? (
-            <Icon aria-hidden className="h-6 w-6 text-emerald-700" />
-          ) : (
-            <span className="text-2xl">{Icon}</span>
-          )}
+      <div className="pointer-events-none absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100" style={{ backgroundImage: 'radial-gradient(circle at 20% 20%, rgba(16,185,129,0.12), transparent 45%)' }} />
+      <div className="relative flex items-start justify-between gap-3">
+        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 ring-1 ring-inset ring-emerald-100 text-emerald-700">
+          <Icon aria-hidden className="h-5 w-5" />
         </div>
-
-        <div>
-          <p className="text-[2.4rem] font-black leading-none tracking-tight text-slate-900 tabular-nums">
-            {val}
-          </p>
-          <p className="mt-1.5 text-sm font-semibold text-slate-500 leading-snug">{stat.label}</p>
-        </div>
+        <span className="rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-700 ring-1 ring-inset ring-emerald-100">
+          {liveLabel}
+        </span>
       </div>
-
-      {/* bottom shimmer bar */}
-      <div className="absolute inset-x-0 bottom-0 h-[3px] rounded-b-2xl bg-gradient-to-r from-transparent via-emerald-300/30 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="relative mt-5 space-y-1">
+        <p className="text-4xl font-black leading-none tracking-tight text-slate-900 tabular-nums">{val}</p>
+        <p className="text-sm font-semibold text-slate-500">{stat.label}</p>
+      </div>
     </div>
   );
 }
@@ -320,28 +307,24 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════
-          STATS  — animated count-up + hover glow
+          STATS  — gradient shell + glass cards
       ═══════════════════════════════════════════ */}
-      <section className="relative overflow-hidden border-b border-slate-200/60 bg-white">
-        {/* subtle grid pattern */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.025]"
-          style={{
-            backgroundImage: 'linear-gradient(#10b981 1px, transparent 1px), linear-gradient(90deg, #10b981 1px, transparent 1px)',
-            backgroundSize: '48px 48px',
-          }}
-        />
+      <section className="relative overflow-hidden bg-gradient-to-b from-white via-emerald-50/40 to-white py-16 lg:py-20">
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 -top-24 mx-auto h-64 max-w-5xl rounded-full bg-emerald-200/20 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 mx-auto h-56 max-w-4xl rounded-full bg-amber-200/10 blur-[110px]" />
 
-        <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
-          {/* section label */}
-          <p className="mb-8 text-center text-[10px] font-black uppercase tracking-[0.28em] text-emerald-500/70">
-            En chiffres
-          </p>
+        <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto flex max-w-3xl flex-col items-center gap-2 text-center">
+            <p className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/70 px-4 py-1 text-[10px] font-extrabold uppercase tracking-[0.25em] text-emerald-700 backdrop-blur">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              {t('home.statsLabel')}
+            </p>
+            <p className="text-sm text-slate-500">{t('home.statsSub')}</p>
+          </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {stats.map((s, i) => (
-              <StatCard key={s.label} stat={s} index={i} />
+              <StatCard key={s.label} stat={s} index={i} liveLabel={t('home.live')} />
             ))}
           </div>
         </div>

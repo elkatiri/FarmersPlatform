@@ -48,6 +48,7 @@ const Navbar = () => {
           
             {/* <img src={logo} alt={t('appName')} className="h-8 w-8 object-cover" />
            */}
+          <span className="text-sm font-bold tracking-tight text-white sm:hidden">{t('appName')}</span>
           <span className="hidden text-base font-bold tracking-tight text-white sm:block">{t('appName')}</span>
         </Link>
 
