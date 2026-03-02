@@ -70,7 +70,7 @@ const Navbar = () => {
             className="rounded-lg bg-white/10 px-2.5 py-1.5 text-xs font-bold text-white transition hover:bg-white/20"
             aria-label="Switch language"
           >
-            {lang === 'fr' ? 'عربية' : 'FR'}
+            {lang === 'fr' ? 'Ar' : 'FR'}
           </button>
 
           {/* Desktop auth */}

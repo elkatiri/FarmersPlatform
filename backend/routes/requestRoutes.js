@@ -11,6 +11,8 @@ const { publicPostLimiter } = require('../middleware/rateLimit');
 
 const router = express.Router();
 
+const maPhoneRegex = /^\+212\d{9}$/;
+
 router.post(
   '/',
   publicPostLimiter,
@@ -27,8 +29,8 @@ router.post(
     body('housingProvided').optional().isBoolean().toBoolean(),
     body('mealsProvided').optional().isBoolean().toBoolean(),
     body('contactName').notEmpty().withMessage('Contact name required'),
-    body('phone').matches(/^\+?[0-9]{8,15}$/).withMessage('Valid phone required'),
-    body('whatsapp').matches(/^\+?[0-9]{8,15}$/).withMessage('Valid WhatsApp number required'),
+    body('phone').matches(maPhoneRegex).withMessage('Phone must be in format +212XXXXXXXXX'),
+    body('whatsapp').matches(maPhoneRegex).withMessage('WhatsApp must be in format +212XXXXXXXXX'),
     body('notes').optional().isString(),
   ],
   createFarmerRequest

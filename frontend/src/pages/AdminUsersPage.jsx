@@ -4,10 +4,10 @@ import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 
 const statusStyles = {
-  approved: 'bg-emerald-50 text-emerald-800 border-emerald-100',
-  pending: 'bg-amber-50 text-amber-800 border-amber-100',
-  rejected: 'bg-slate-100 text-slate-700 border-slate-200',
-  deleted: 'bg-red-50 text-red-700 border-red-100',
+  approuve: 'bg-emerald-50 text-emerald-800 border-emerald-100',
+  en_attente: 'bg-amber-50 text-amber-800 border-amber-100',
+  rejete: 'bg-slate-100 text-slate-700 border-slate-200',
+  supprime: 'bg-red-50 text-red-700 border-red-100',
 };
 
 const normalizeCsvList = (value) =>
@@ -35,7 +35,7 @@ const AdminUsersPage = () => {
     location: '',
     regions: '',
     skills: '',
-    status: 'pending',
+    status: 'en_attente',
     notes: '',
   });
 
@@ -85,7 +85,7 @@ const AdminUsersPage = () => {
       location: worker.location || '',
       regions: Array.isArray(worker.regions) ? worker.regions.join(', ') : '',
       skills: Array.isArray(worker.skills) ? worker.skills.join(', ') : '',
-      status: worker.status || 'pending',
+      status: worker.status || 'en_attente',
       notes: worker.notes || '',
     });
   };
@@ -99,7 +99,7 @@ const AdminUsersPage = () => {
       location: '',
       regions: '',
       skills: '',
-      status: 'pending',
+      status: 'en_attente',
       notes: '',
     });
   };
@@ -155,10 +155,10 @@ const AdminUsersPage = () => {
 
   const getStatusLabel = (status) => {
     const keyMap = {
-      pending: 'statusPending',
-      approved: 'statusApproved',
-      rejected: 'statusRejected',
-      deleted: 'statusDeleted',
+      en_attente: 'statusPending',
+      approuve: 'statusApproved',
+      rejete: 'statusRejected',
+      supprime: 'statusDeleted',
     };
     const key = keyMap[status] || null;
     return key ? t(`admin.${key}`) : status;
@@ -198,10 +198,10 @@ const AdminUsersPage = () => {
               <label className="mb-1 block text-sm font-semibold text-gray-700">{t('admin.status')}</label>
               <select value={form.status} onChange={(e) => setForm((p) => ({ ...p, status: e.target.value }))}
                 className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:border-emerald-500 focus:outline-none">
-                <option value="pending">{t('admin.statusPending')}</option>
-                <option value="approved">{t('admin.statusApproved')}</option>
-                <option value="rejected">{t('admin.statusRejected')}</option>
-                <option value="deleted">{t('admin.statusDeleted')}</option>
+                <option value="en_attente">{t('admin.statusPending')}</option>
+                <option value="approuve">{t('admin.statusApproved')}</option>
+                <option value="rejete">{t('admin.statusRejected')}</option>
+                <option value="supprime">{t('admin.statusDeleted')}</option>
               </select>
             </div>
             <div>
@@ -294,10 +294,10 @@ const AdminUsersPage = () => {
                         </button>
                         <select className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700 focus:border-emerald-500 focus:outline-none"
                           value={worker.status} onChange={(e) => updateStatusQuick(worker._id, e.target.value)}>
-                          <option value="pending">{t('admin.statusPending')}</option>
-                          <option value="approved">{t('admin.statusApproved')}</option>
-                          <option value="rejected">{t('admin.statusRejected')}</option>
-                          <option value="deleted">{t('admin.statusDeleted')}</option>
+                          <option value="en_attente">{t('admin.statusPending')}</option>
+                          <option value="approuve">{t('admin.statusApproved')}</option>
+                          <option value="rejete">{t('admin.statusRejected')}</option>
+                          <option value="supprime">{t('admin.statusDeleted')}</option>
                         </select>
                         <button onClick={() => deleteWorker(worker._id)} className="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100">
                           {t('admin.delete')}

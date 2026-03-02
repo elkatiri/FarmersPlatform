@@ -36,6 +36,8 @@ const fr = {
     soon: 'Bientôt',
 
     // Stats
+    statsLabel: 'Chiffres clés',
+    statsSub: 'Aperçu de notre activité au Maroc.',
     statWorkers: 'Travailleurs validés',
     statMissions: 'Missions publiées',
     statDelay: 'Délai moyen',

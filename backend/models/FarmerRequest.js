@@ -24,8 +24,8 @@ const farmerRequestSchema = new mongoose.Schema(
     notes: { type: String, default: '' },
     status: {
       type: String,
-      enum: ['new', 'in_progress', 'matched', 'closed'],
-      default: 'new',
+      enum: ['nouveau', 'en_cours', 'apparie', 'clos'],
+      default: 'nouveau',
     },
     source: { type: String, trim: true, default: 'web' },
   },

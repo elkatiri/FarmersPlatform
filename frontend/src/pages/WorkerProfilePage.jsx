@@ -21,6 +21,8 @@ const initialState = {
   notes: '',
 };
 
+const maPhoneRegex = /^\+212\d{9}$/;
+
 const WorkerProfilePage = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
@@ -53,6 +55,13 @@ const WorkerProfilePage = () => {
       return;
     }
 
+    const phone = String(form.phone || '').trim();
+    const whatsapp = String(form.whatsapp || '').trim();
+    if (!maPhoneRegex.test(phone) || !maPhoneRegex.test(whatsapp)) {
+      setError(t('workerProfile.errPhone'));
+      return;
+    }
+
     try {
       await api.post('/workers', {
         ...form,
@@ -77,7 +86,7 @@ const WorkerProfilePage = () => {
           <p className="max-w-2xl text-sm text-slate-600">{t('workerProfile.desc')}</p>
         </div>
         <div className="rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-800 shadow-sm">
-          {t('workerProfile.statusLabel')} : <strong>pending</strong>
+          {t('workerProfile.statusLabel')} : <strong>en_attente</strong>
         </div>
       </div>
 

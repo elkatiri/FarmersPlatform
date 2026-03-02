@@ -37,7 +37,7 @@ const runSeed = async () => {
       experienceLevel: 'expert',
       availability: 'immediate',
       transportFlexibility: 'yes',
-      status: 'approved',
+      status: 'approuve',
     },
     {
       fullName: 'Fatima Zahra Ait Ali',
@@ -49,7 +49,7 @@ const runSeed = async () => {
       experienceLevel: 'intermediate',
       availability: 'within_week',
       transportFlexibility: 'depends',
-      status: 'pending',
+      status: 'en_attente',
     },
     {
       fullName: 'Youssef Benali',
@@ -61,7 +61,7 @@ const runSeed = async () => {
       experienceLevel: 'beginner',
       availability: 'seasonal',
       transportFlexibility: 'no',
-      status: 'approved',
+      status: 'approuve',
     },
     {
       fullName: 'Khadija Amrani',
@@ -73,7 +73,7 @@ const runSeed = async () => {
       experienceLevel: 'expert',
       availability: 'immediate',
       transportFlexibility: 'yes',
-      status: 'approved',
+      status: 'approuve',
     },
   ]);
 
@@ -92,7 +92,7 @@ const runSeed = async () => {
       phone: '+212611111111',
       whatsapp: '+212611111111',
       notes: 'Expérience en fruits rouges souhaitée',
-      status: 'new',
+      status: 'nouveau',
     },
     {
       workType: 'taille',
@@ -108,7 +108,7 @@ const runSeed = async () => {
       phone: '+212622222222',
       whatsapp: '+212622222222',
       notes: '',
-      status: 'matched',
+      status: 'apparie',
     },
     {
       workType: 'cueillette des oranges',
@@ -124,7 +124,7 @@ const runSeed = async () => {
       phone: '+212633333333',
       whatsapp: '+212633333333',
       notes: 'Travail saisonnier',
-      status: 'new',
+      status: 'nouveau',
     },
   ]);
 

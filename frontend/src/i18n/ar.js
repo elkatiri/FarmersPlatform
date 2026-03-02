@@ -36,6 +36,8 @@ const ar = {
     soon: 'قريبًا',
 
     // Stats
+    statsLabel: 'أرقام',
+    statsSub: 'نظرة سريعة على نشاطنا في المغرب.',
     statWorkers: 'عمال معتمدون',
     statMissions: 'مهمات منشورة',
     statDelay: 'متوسط المدة',

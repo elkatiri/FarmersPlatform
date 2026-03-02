@@ -161,7 +161,7 @@ export default function Home() {
 
   const stats = [
     { value: workerCount > 0 ? `${workerCount}+` : '480+', label: t('home.statWorkers'), icon: LuUsers },
-    { value: '1 200', label: t('home.statMissions'), icon: LuClipboardList },
+    { value: '200', label: t('home.statMissions'), icon: LuClipboardList },
     { value: '48h', label: t('home.statDelay'), icon: LuZap },
     { value: '12', label: t('home.statRegions'), icon: LuMapPin },
   ];

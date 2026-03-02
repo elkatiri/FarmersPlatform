@@ -224,10 +224,10 @@ const AdminDashboardPage = () => {
                     <td className="px-4 py-3 text-gray-600">{w.skills.join(', ')}</td>
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap gap-2">
-                        <button onClick={() => updateWorkerStatus(w._id, 'approved')} className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-700">
+                        <button onClick={() => updateWorkerStatus(w._id, 'approuve')} className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-700">
                           {t('admin.approve')}
                         </button>
-                        <button onClick={() => updateWorkerStatus(w._id, 'rejected')} className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-50">
+                        <button onClick={() => updateWorkerStatus(w._id, 'rejete')} className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-50">
                           {t('admin.reject')}
                         </button>
                       </div>
@@ -262,10 +262,10 @@ const AdminDashboardPage = () => {
               className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 focus:border-emerald-500 focus:outline-none"
             >
               <option value="all">{t('admin.filterAll')}</option>
-              <option value="new">{t('admin.statusNew')}</option>
-              <option value="in_progress">{t('admin.statusInProgress')}</option>
-              <option value="matched">{t('admin.statusMatched')}</option>
-              <option value="closed">{t('admin.statusClosed')}</option>
+              <option value="nouveau">{t('admin.statusNew')}</option>
+              <option value="en_cours">{t('admin.statusInProgress')}</option>
+              <option value="apparie">{t('admin.statusMatched')}</option>
+              <option value="clos">{t('admin.statusClosed')}</option>
             </select>
           </div>
         </div>
@@ -311,10 +311,10 @@ const AdminDashboardPage = () => {
                         value={r.status}
                         onChange={(e) => updateRequestStatus(r._id, e.target.value)}
                       >
-                        <option value="new">{t('admin.statusNew')}</option>
-                        <option value="in_progress">{t('admin.statusInProgress')}</option>
-                        <option value="matched">{t('admin.statusMatched')}</option>
-                        <option value="closed">{t('admin.statusClosed')}</option>
+                        <option value="nouveau">{t('admin.statusNew')}</option>
+                        <option value="en_cours">{t('admin.statusInProgress')}</option>
+                        <option value="apparie">{t('admin.statusMatched')}</option>
+                        <option value="clos">{t('admin.statusClosed')}</option>
                       </select>
                     </td>
                   </tr>

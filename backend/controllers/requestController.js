@@ -17,7 +17,7 @@ const createFarmerRequest = async (req, res) => {
       ...req.body,
       durationDays,
       source: req.body.source || 'web',
-      status: 'new',
+      status: 'nouveau',
     };
 
     const request = await FarmerRequest.create(payload);
@@ -61,7 +61,7 @@ const updateRequestStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    if (!['new', 'in_progress', 'matched', 'closed'].includes(status)) {
+    if (!['nouveau', 'en_cours', 'apparie', 'clos'].includes(status)) {
       return res.status(400).json({ message: 'Invalid status' });
     }
 

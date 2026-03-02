@@ -22,7 +22,7 @@ const initialState = {
   notes: '',
 };
 
-const phoneRegex = /^\+?[0-9]{8,15}$/;
+const maPhoneRegex = /^\+212\d{9}$/;
 
 const FarmerRequestPage = () => {
   const { t, isRTL } = useLanguage();
@@ -96,7 +96,9 @@ const FarmerRequestPage = () => {
     if (!form.workType || !form.location || !form.startDate || !form.endDate || !form.contactName) {
       return t('farmerRequest.errRequired');
     }
-    if (!phoneRegex.test(form.phone) || !phoneRegex.test(form.whatsapp)) {
+    const phone = String(form.phone || '').trim();
+    const whatsapp = String(form.whatsapp || '').trim();
+    if (!maPhoneRegex.test(phone) || !maPhoneRegex.test(whatsapp)) {
       return t('farmerRequest.errPhone');
     }
     if (new Date(form.endDate) < new Date(form.startDate)) {
@@ -166,7 +168,7 @@ const FarmerRequestPage = () => {
   const whatsappPayload = submittedData || form;
   const formatWhatsAppNumber = (value) => {
     const digits = (value || '').replace(/\D/g, '');
-    return digits.length >= 8 ? digits : '';
+    return digits.length === 12 && digits.startsWith('212') ? digits : '';
   };
   const adminWhatsApp = import.meta.env.VITE_ADMIN_WHATSAPP || whatsappPayload.whatsapp;
   const whatsappNumber = formatWhatsAppNumber(adminWhatsApp);
@@ -193,10 +195,10 @@ const FarmerRequestPage = () => {
 
   const getRequestStatusLabel = (status) => {
     const keyMap = {
-      new: 'statusNew',
-      in_progress: 'statusInProgress',
-      matched: 'statusMatched',
-      closed: 'statusClosed',
+      nouveau: 'statusNew',
+      en_cours: 'statusInProgress',
+      apparie: 'statusMatched',
+      clos: 'statusClosed',
     };
     const key = keyMap[status] || null;
     return key ? t(`admin.${key}`) : status;
@@ -211,7 +213,7 @@ const FarmerRequestPage = () => {
           <p className="max-w-2xl text-sm text-slate-600">{t('farmerRequest.desc')}</p>
         </div>
         <div className="rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-800 shadow-sm">
-          {t('farmerRequest.statusLabel')} : <strong>new</strong>
+          {t('farmerRequest.statusLabel')} : <strong>nouveau</strong>
         </div>
       </div>
 

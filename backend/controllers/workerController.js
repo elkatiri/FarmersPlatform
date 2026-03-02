@@ -29,7 +29,7 @@ const createWorkerProfile = async (req, res) => {
           ? req.body.travelFlexible
           : req.body.transportFlexibility === 'yes',
       transportFlexibility: req.body.transportFlexibility,
-      status: 'pending',
+      status: 'en_attente',
       notes: req.body.notes || '',
     };
 
@@ -47,7 +47,7 @@ const getApprovedWorkers = async (req, res) => {
   try {
     const { location, skill, availability } = req.query;
 
-    const filters = { status: 'approved' };
+    const filters = { status: 'approuve' };
 
     if (location) {
       filters.regions = { $in: [location] };
@@ -68,7 +68,7 @@ const getApprovedWorkers = async (req, res) => {
 
 const getPendingWorkers = async (req, res) => {
   try {
-    const workers = await WorkerProfile.find({ status: 'pending' }).sort({ createdAt: -1 });
+    const workers = await WorkerProfile.find({ status: 'en_attente' }).sort({ createdAt: -1 });
     return res.json(workers);
   } catch (error) {
     return res.status(500).json({ message: 'Unable to fetch pending workers' });
@@ -80,7 +80,7 @@ const updateWorkerStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    if (!['approved', 'rejected', 'pending', 'deleted'].includes(status)) {
+    if (!['approuve', 'rejete', 'en_attente', 'supprime'].includes(status)) {
       return res.status(400).json({ message: 'Invalid status' });
     }
 
@@ -149,7 +149,7 @@ const updateWorkerProfile = async (req, res) => {
       updates.fullName = incomingFullName;
     }
 
-    if (updates.status && !['pending', 'approved', 'rejected', 'deleted'].includes(updates.status)) {
+    if (updates.status && !['en_attente', 'approuve', 'rejete', 'supprime'].includes(updates.status)) {
       return res.status(400).json({ message: 'Invalid status' });
     }
 
@@ -163,7 +163,7 @@ const updateWorkerProfile = async (req, res) => {
 const deleteWorkerProfile = async (req, res) => {
   try {
     const { id } = req.params;
-    const updated = await WorkerProfile.findByIdAndUpdate(id, { status: 'deleted' }, { new: true });
+    const updated = await WorkerProfile.findByIdAndUpdate(id, { status: 'supprime' }, { new: true });
     if (!updated) {
       return res.status(404).json({ message: 'Worker not found' });
     }

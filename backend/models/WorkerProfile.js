@@ -27,8 +27,8 @@ const workerProfileSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['pending', 'approved', 'rejected', 'deleted'],
-      default: 'pending',
+      enum: ['en_attente', 'approuve', 'rejete', 'supprime'],
+      default: 'en_attente',
     },
     notes: { type: String, trim: true, default: '' },
   },
