@@ -18,7 +18,9 @@ const normalizeCsvList = (value) =>
 
 const AdminUsersPage = () => {
   const { token } = useAuth();
-  const { t } = useLanguage();
+  const { t, isRTL } = useLanguage();
+  const alignClass = isRTL ? 'text-right' : 'text-left';
+  const dir = isRTL ? 'rtl' : 'ltr';
   const headers = authHeaders(token);
 
   const [workers, setWorkers] = useState([]);
@@ -164,148 +166,103 @@ const AdminUsersPage = () => {
 
   return (
     <section className="space-y-6">
-      <header className="rounded-3xl border border-emerald-100 bg-white p-6 shadow-sm sm:p-8">
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-700">Admin</p>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">{t('admin.usersTitle')}</h1>
-        <p className="mt-2 text-sm text-slate-600">{t('admin.usersDesc')}</p>
+      <header className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-emerald-600">{t('admin.navUsers')}</p>
+        <h1 className="mt-1 text-2xl font-bold text-gray-900">{t('admin.usersTitle')}</h1>
+        <p className="mt-1 text-sm text-gray-500">{t('admin.usersDesc')}</p>
       </header>
 
-      {error ? (
-        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
-      ) : null}
+      {error && (
+        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>
+      )}
 
-      {selectedWorker ? (
-        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      {selectedWorker && (
+        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">{t('admin.editUser')}</p>
-              <h2 className="mt-1 text-lg font-bold text-slate-900">{selectedWorker.fullName}</h2>
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">{t('admin.editUser')}</p>
+              <h2 className="mt-1 text-lg font-bold text-gray-900">{selectedWorker.fullName}</h2>
             </div>
-            <button
-              onClick={cancelEdit}
-              className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
-            >
+            <button onClick={cancelEdit} className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
               {t('admin.cancel')}
             </button>
           </div>
 
           <form onSubmit={saveEdit} className="mt-6 grid gap-4 lg:grid-cols-2">
             <div>
-              <label className="mb-1 block text-sm font-semibold text-slate-700">{t('admin.fullName')}</label>
-              <input
-                value={form.fullName}
-                onChange={(e) => setForm((p) => ({ ...p, fullName: e.target.value }))}
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none"
-              />
+              <label className="mb-1 block text-sm font-semibold text-gray-700">{t('admin.fullName')}</label>
+              <input value={form.fullName} onChange={(e) => setForm((p) => ({ ...p, fullName: e.target.value }))}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:border-emerald-500 focus:outline-none" />
             </div>
-
             <div>
-              <label className="mb-1 block text-sm font-semibold text-slate-700">{t('admin.status')}</label>
-              <select
-                value={form.status}
-                onChange={(e) => setForm((p) => ({ ...p, status: e.target.value }))}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 focus:border-emerald-500 focus:outline-none"
-              >
+              <label className="mb-1 block text-sm font-semibold text-gray-700">{t('admin.status')}</label>
+              <select value={form.status} onChange={(e) => setForm((p) => ({ ...p, status: e.target.value }))}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:border-emerald-500 focus:outline-none">
                 <option value="pending">{t('admin.statusPending')}</option>
                 <option value="approved">{t('admin.statusApproved')}</option>
                 <option value="rejected">{t('admin.statusRejected')}</option>
                 <option value="deleted">{t('admin.statusDeleted')}</option>
               </select>
             </div>
-
             <div>
-              <label className="mb-1 block text-sm font-semibold text-slate-700">{t('admin.phone')}</label>
-              <input
-                value={form.phone}
-                onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none"
-              />
+              <label className="mb-1 block text-sm font-semibold text-gray-700">{t('admin.phone')}</label>
+              <input value={form.phone} onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:border-emerald-500 focus:outline-none" />
             </div>
-
             <div>
-              <label className="mb-1 block text-sm font-semibold text-slate-700">{t('admin.whatsapp')}</label>
-              <input
-                value={form.whatsapp}
-                onChange={(e) => setForm((p) => ({ ...p, whatsapp: e.target.value }))}
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none"
-              />
+              <label className="mb-1 block text-sm font-semibold text-gray-700">{t('admin.whatsapp')}</label>
+              <input value={form.whatsapp} onChange={(e) => setForm((p) => ({ ...p, whatsapp: e.target.value }))}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:border-emerald-500 focus:outline-none" />
             </div>
-
             <div>
-              <label className="mb-1 block text-sm font-semibold text-slate-700">{t('admin.location')}</label>
-              <input
-                value={form.location}
-                onChange={(e) => setForm((p) => ({ ...p, location: e.target.value }))}
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none"
-              />
+              <label className="mb-1 block text-sm font-semibold text-gray-700">{t('admin.location')}</label>
+              <input value={form.location} onChange={(e) => setForm((p) => ({ ...p, location: e.target.value }))}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:border-emerald-500 focus:outline-none" />
             </div>
-
             <div>
-              <label className="mb-1 block text-sm font-semibold text-slate-700">{t('admin.regions')}</label>
-              <input
-                value={form.regions}
-                onChange={(e) => setForm((p) => ({ ...p, regions: e.target.value }))}
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none"
-              />
-              <p className="mt-1 text-xs text-slate-500">{t('admin.csvHint')}</p>
+              <label className="mb-1 block text-sm font-semibold text-gray-700">{t('admin.regions')}</label>
+              <input value={form.regions} onChange={(e) => setForm((p) => ({ ...p, regions: e.target.value }))}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:border-emerald-500 focus:outline-none" />
+              <p className="mt-1 text-xs text-gray-400">{t('admin.csvHint')}</p>
             </div>
-
             <div>
-              <label className="mb-1 block text-sm font-semibold text-slate-700">{t('admin.skills')}</label>
-              <input
-                value={form.skills}
-                onChange={(e) => setForm((p) => ({ ...p, skills: e.target.value }))}
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none"
-              />
-              <p className="mt-1 text-xs text-slate-500">{t('admin.csvHint')}</p>
+              <label className="mb-1 block text-sm font-semibold text-gray-700">{t('admin.skills')}</label>
+              <input value={form.skills} onChange={(e) => setForm((p) => ({ ...p, skills: e.target.value }))}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:border-emerald-500 focus:outline-none" />
+              <p className="mt-1 text-xs text-gray-400">{t('admin.csvHint')}</p>
             </div>
-
             <div className="lg:col-span-2">
-              <label className="mb-1 block text-sm font-semibold text-slate-700">{t('admin.notes')}</label>
-              <textarea
-                value={form.notes}
-                onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))}
-                rows={3}
-                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-emerald-500 focus:outline-none"
-              />
+              <label className="mb-1 block text-sm font-semibold text-gray-700">{t('admin.notes')}</label>
+              <textarea value={form.notes} onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))} rows={3}
+                className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-900 focus:border-emerald-500 focus:outline-none" />
             </div>
-
             <div className="lg:col-span-2 flex flex-col gap-3 sm:flex-row">
-              <button
-                type="submit"
-                className="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
-              >
+              <button type="submit" className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700">
                 {t('admin.save')}
               </button>
-              <button
-                type="button"
-                onClick={() => deleteWorker(selectedId)}
-                className="inline-flex items-center justify-center rounded-xl border border-red-200 bg-red-50 px-5 py-3 text-sm font-semibold text-red-700 transition hover:bg-red-100"
-              >
+              <button type="button" onClick={() => deleteWorker(selectedId)}
+                className="rounded-xl border border-red-200 bg-red-50 px-5 py-3 text-sm font-semibold text-red-700 transition hover:bg-red-100">
                 {t('admin.delete')}
               </button>
             </div>
           </form>
         </section>
-      ) : null}
+      )}
 
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">{t('admin.usersTableLabel')}</p>
-            <h2 className="mt-1 text-lg font-bold text-slate-900">{t('admin.usersTableTitle')}</h2>
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">{t('admin.usersTableLabel')}</p>
+            <h2 className="mt-1 text-lg font-bold text-gray-900">{t('admin.usersTableTitle')}</h2>
           </div>
-          <button
-            onClick={fetchWorkers}
-            className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
-          >
+          <button onClick={fetchWorkers} className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
             {t('admin.refresh')}
           </button>
         </div>
 
-        <div className="mt-5 overflow-x-auto rounded-2xl border border-slate-200">
+        <div className="mt-4 overflow-x-auto rounded-xl border border-gray-200" dir={dir}>
           <table className="min-w-full text-sm">
-            <thead className="bg-slate-50 text-left text-xs font-bold uppercase tracking-[0.14em] text-slate-600">
+            <thead className={`bg-gray-50 ${alignClass} text-xs font-semibold uppercase tracking-wide text-gray-500`}>
               <tr>
                 <th className="px-4 py-3">{t('admin.thName')}</th>
                 <th className="px-4 py-3">{t('admin.thPhone')}</th>
@@ -314,58 +271,35 @@ const AdminUsersPage = () => {
                 <th className="px-4 py-3">{t('admin.thActions')}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-200">
+            <tbody className="divide-y divide-gray-100">
               {loading ? (
-                <tr>
-                  <td className="px-4 py-4 text-slate-600" colSpan={5}>
-                    {t('admin.loading')}
-                  </td>
-                </tr>
+                <tr><td className="px-4 py-4 text-gray-400" colSpan={5}>{t('admin.loading')}</td></tr>
               ) : workers.length === 0 ? (
-                <tr>
-                  <td className="px-4 py-4 text-slate-600" colSpan={5}>
-                    {t('admin.noUsers')}
-                  </td>
-                </tr>
+                <tr><td className="px-4 py-4 text-gray-400" colSpan={5}>{t('admin.noUsers')}</td></tr>
               ) : (
                 workers.map((worker) => (
-                  <tr key={worker._id} className="bg-white">
-                    <td className="px-4 py-3 font-semibold text-slate-900">{worker.fullName}</td>
-                    <td className="px-4 py-3 text-slate-700">{worker.phone}</td>
-                    <td className="px-4 py-3 text-slate-700">{worker.location}</td>
+                  <tr key={worker._id} className="hover:bg-gray-50/60 transition">
+                    <td className="px-4 py-3 font-medium text-gray-900">{worker.fullName}</td>
+                    <td className="px-4 py-3 text-gray-600">{worker.phone}</td>
+                    <td className="px-4 py-3 text-gray-600">{worker.location}</td>
                     <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${
-                          statusStyles[worker.status] || 'bg-slate-50 text-slate-700 border-slate-200'
-                        }`}
-                      >
+                      <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${statusStyles[worker.status] || 'bg-gray-50 text-gray-700 border-gray-200'}`}>
                         {getStatusLabel(worker.status)}
                       </span>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap items-center gap-2">
-                        <button
-                          onClick={() => startEdit(worker)}
-                          className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 transition hover:bg-slate-50"
-                        >
+                        <button onClick={() => startEdit(worker)} className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-50">
                           {t('admin.edit')}
                         </button>
-
-                        <select
-                          className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-800 focus:border-emerald-500 focus:outline-none"
-                          value={worker.status}
-                          onChange={(e) => updateStatusQuick(worker._id, e.target.value)}
-                        >
+                        <select className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs text-gray-700 focus:border-emerald-500 focus:outline-none"
+                          value={worker.status} onChange={(e) => updateStatusQuick(worker._id, e.target.value)}>
                           <option value="pending">{t('admin.statusPending')}</option>
                           <option value="approved">{t('admin.statusApproved')}</option>
                           <option value="rejected">{t('admin.statusRejected')}</option>
                           <option value="deleted">{t('admin.statusDeleted')}</option>
                         </select>
-
-                        <button
-                          onClick={() => deleteWorker(worker._id)}
-                          className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100"
-                        >
+                        <button onClick={() => deleteWorker(worker._id)} className="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 transition hover:bg-red-100">
                           {t('admin.delete')}
                         </button>
                       </div>

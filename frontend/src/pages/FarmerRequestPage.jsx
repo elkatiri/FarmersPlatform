@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { FaWhatsapp } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 import { useLanguage } from '../context/LanguageContext';
@@ -24,7 +25,10 @@ const initialState = {
 const phoneRegex = /^\+?[0-9]{8,15}$/;
 
 const FarmerRequestPage = () => {
-  const { t } = useLanguage();
+  const { t, isRTL } = useLanguage();
+  const dir = isRTL ? 'rtl' : 'ltr';
+  const alignClass = isRTL ? 'text-right' : 'text-left';
+  const dateLocale = isRTL ? 'ar-MA' : undefined;
   const navigate = useNavigate();
   const { isUserAuthenticated, currentUser } = useAuth();
   const [form, setForm] = useState(initialState);
@@ -160,7 +164,12 @@ const FarmerRequestPage = () => {
   };
 
   const whatsappPayload = submittedData || form;
+  const formatWhatsAppNumber = (value) => {
+    const digits = (value || '').replace(/\D/g, '');
+    return digits.length >= 8 ? digits : '';
+  };
   const adminWhatsApp = import.meta.env.VITE_ADMIN_WHATSAPP || whatsappPayload.whatsapp;
+  const whatsappNumber = formatWhatsAppNumber(adminWhatsApp);
   const prefilledWhatsApp = encodeURIComponent(
     `${t('farmerRequest.waTitle')}${requestId ? ` #${requestId}` : ''}` +
       `\n${t('farmerRequest.waWork')}: ${whatsappPayload.workType || '-'}` +
@@ -172,10 +181,13 @@ const FarmerRequestPage = () => {
       `\n${t('farmerRequest.waMeals')}: ${whatsappPayload.mealsProvided ? t('farmerRequest.waYes') : t('farmerRequest.waNo')}` +
       `\n${t('farmerRequest.waContact')}: ${whatsappPayload.contactName || '-'} (${whatsappPayload.whatsapp || '-'})`
   );
-  const whatsappUrl = `https://wa.me/${(adminWhatsApp || '').replace(/[^\d]/g, '')}?text=${prefilledWhatsApp}`;
+  const whatsappUrl = whatsappNumber ? `https://wa.me/${whatsappNumber}?text=${prefilledWhatsApp}` : '';
 
   const handleWhatsAppContinue = () => {
-    if (!whatsappUrl) return;
+    if (!whatsappUrl) {
+      setError(t('farmerRequest.errWhatsAppLink'));
+      return;
+    }
     window.open(whatsappUrl, '_blank');
   };
 
@@ -339,14 +351,14 @@ const FarmerRequestPage = () => {
               onClick={handleWhatsAppContinue}
               className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-800 transition hover:border-emerald-400 hover:bg-emerald-100"
             >
-              <span>📲</span>
+              <FaWhatsapp className="text-lg" />
               {t('farmerRequest.continueWhatsApp')}
             </button>
           </div>
         </form>
       </div>
 
-      <div className="mt-8 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+      <div className="mt-8 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm" dir={dir}>
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-slate-900">{t('farmerRequest.historyTitle')}</h3>
           <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{t('farmerRequest.historyLocal')}</span>
@@ -357,7 +369,7 @@ const FarmerRequestPage = () => {
           <div className="mt-4 overflow-x-auto">
             <table className="w-full min-w-[520px] border-collapse">
               <thead>
-                <tr className="bg-slate-50 text-left text-sm text-slate-700">
+                <tr className={`bg-slate-50 ${alignClass} text-sm text-slate-700`}>
                   <th className="px-3 py-2">{t('farmerRequest.thWork')}</th>
                   <th className="px-3 py-2">{t('farmerRequest.thLocation')}</th>
                   <th className="px-3 py-2">{t('farmerRequest.thDates')}</th>
@@ -368,13 +380,13 @@ const FarmerRequestPage = () => {
               <tbody>
                 {requestHistory.map((item) => (
                   <tr key={item.id} className="border-b border-slate-100 text-sm text-slate-700">
-                    <td className="px-3 py-2 font-semibold text-slate-900">{item.workType}</td>
-                    <td className="px-3 py-2">{item.location}</td>
-                    <td className="px-3 py-2">
-                      {new Date(item.startDate).toLocaleDateString()} - {new Date(item.endDate).toLocaleDateString()}
+                    <td className={`px-3 py-2 font-semibold text-slate-900 ${alignClass}`}>{item.workType}</td>
+                    <td className={`px-3 py-2 ${alignClass}`}>{item.location}</td>
+                    <td className={`px-3 py-2 ${alignClass}`}>
+                      {new Date(item.startDate).toLocaleDateString(dateLocale)} - {new Date(item.endDate).toLocaleDateString(dateLocale)}
                     </td>
-                    <td className="px-3 py-2">{item.workersNeeded}</td>
-                    <td className="px-3 py-2">
+                    <td className={`px-3 py-2 ${alignClass}`}>{item.workersNeeded}</td>
+                    <td className={`px-3 py-2 ${alignClass}`}>
                       <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold capitalize text-slate-700">
                         {getRequestStatusLabel(item.status)}
                       </span>

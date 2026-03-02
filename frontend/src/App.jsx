@@ -12,6 +12,7 @@ import AdminDashboardPage from './pages/AdminDashboardPage';
 import AdminLayout from './pages/AdminLayout';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminFaqsPage from './pages/AdminFaqsPage';
+import AdminMessagesPage from './pages/AdminMessagesPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import Footer from './components/Footer';
@@ -49,6 +50,7 @@ const App = () => {
             <Route index element={<AdminDashboardPage />} />
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="faqs" element={<AdminFaqsPage />} />
+            <Route path="messages" element={<AdminMessagesPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
