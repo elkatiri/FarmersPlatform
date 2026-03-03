@@ -332,6 +332,7 @@ const ar = {
     sectionRequests: 'الطلبات',
     sectionMessages: 'الرسائل',
     navMessages: 'الرسائل',
+    navExport: 'التصدير',
     searchMessages: 'بحث حسب الاسم أو البريد أو الرسالة',
     exportHint: 'تحميل البيانات بصيغة CSV أو Excel.',
     searchRequests: 'بحث حسب العمل أو المكان أو الفلاح',

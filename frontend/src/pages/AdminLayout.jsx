@@ -192,6 +192,23 @@ const AdminLayout = () => {
           </span>
         )}
       </NavLink>
+
+      {/* EXPORT */}
+      <NavLink
+        to="/admin/export"
+        className={({ isActive }) =>
+          `${navLinkBase} ${isActive ? 'bg-emerald-50 text-emerald-700 font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`
+        }
+      >
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-50 text-violet-600">
+          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" strokeLinecap="round" strokeLinejoin="round" />
+            <polyline points="7 10 12 15 17 10" strokeLinecap="round" strokeLinejoin="round" />
+            <line x1="12" y1="15" x2="12" y2="3" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </span>
+        <span>{t('admin.navExport')}</span>
+      </NavLink>
     </div>
   )}
             </div>

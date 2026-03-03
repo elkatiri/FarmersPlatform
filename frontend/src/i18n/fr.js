@@ -335,6 +335,7 @@ const fr = {
     sectionRequests: 'Demandes',
     sectionMessages: 'Messages',
     navMessages: 'Messages',
+    navExport: 'Exportation',
     searchMessages: 'Rechercher par nom, email ou message',
     exportHint: 'Télécharger les données en CSV ou Excel.',
     searchRequests: 'Rechercher par travail, lieu ou fermier',

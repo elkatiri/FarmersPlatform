@@ -13,6 +13,7 @@ import AdminLayout from './pages/AdminLayout';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminFaqsPage from './pages/AdminFaqsPage';
 import AdminMessagesPage from './pages/AdminMessagesPage';
+import AdminExportPage from './pages/AdminExportPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import Footer from './components/Footer';
@@ -51,6 +52,7 @@ const App = () => {
             <Route path="users" element={<AdminUsersPage />} />
             <Route path="faqs" element={<AdminFaqsPage />} />
             <Route path="messages" element={<AdminMessagesPage />} />
+            <Route path="export" element={<AdminExportPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
