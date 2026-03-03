@@ -19,6 +19,7 @@ app.set('trust proxy', 1);
 const corsOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
+  'https://farmers-platform-beige.vercel.app',
   ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : []),
   ...(process.env.FRONTEND_URLS ? process.env.FRONTEND_URLS.split(',') : []),
 ]
@@ -33,6 +34,8 @@ app.use(
       return callback(new Error(`CORS blocked for origin: ${origin}`));
     },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
 app.use(helmet());
