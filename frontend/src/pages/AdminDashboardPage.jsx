@@ -109,11 +109,11 @@ const AdminDashboardPage = () => {
   return (
     <section className="space-y-6">
       {/* Header */}
-      <header className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+      <header className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-widest text-emerald-600">{t('admin.navOverview')}</p>
-            <h1 className="mt-1 text-2xl font-bold text-gray-900">{t('admin.dashboardTitle')}</h1>
+            <h1 className="mt-1 text-xl sm:text-2xl font-bold text-gray-900">{t('admin.dashboardTitle')}</h1>
             <p className="mt-1 text-sm text-gray-500">{t('admin.dashboardDesc')}</p>
           </div>
           <button
@@ -196,12 +196,49 @@ const AdminDashboardPage = () => {
       </div>
 
       {/* Pending workers */}
-      <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+      <section className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm">
         <div className="mb-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">{t('admin.sectionWorkers')}</p>
           <h2 className="mt-1 text-lg font-bold text-gray-900">{t('admin.pendingTitle')}</h2>
         </div>
-        <div className="overflow-x-auto rounded-xl border border-gray-200" dir={dir}>
+
+        {/* Mobile cards */}
+        <div className="space-y-3 md:hidden">
+          {workers.length === 0 ? (
+            <p className="py-4 text-sm text-gray-400">{t('admin.noPending')}</p>
+          ) : (
+            workers.map((w) => (
+              <div key={w._id} className="rounded-xl border border-gray-200 bg-gray-50/50 p-4 space-y-2">
+                <p className="text-sm font-semibold text-gray-900">{w.fullName || w.name}</p>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <span className="font-medium text-gray-500">{t('admin.thPhone')}</span>
+                    <p className="text-gray-700">{w.phone}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-500">{t('admin.thRegions')}</span>
+                    <p className="text-gray-700">{w.regions.join(', ')}</p>
+                  </div>
+                </div>
+                <div className="text-xs">
+                  <span className="font-medium text-gray-500">{t('admin.thSkills')}</span>
+                  <p className="text-gray-700">{w.skills.join(', ')}</p>
+                </div>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  <button onClick={() => updateWorkerStatus(w._id, 'approuve')} className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-700">
+                    {t('admin.approve')}
+                  </button>
+                  <button onClick={() => updateWorkerStatus(w._id, 'rejete')} className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 transition hover:bg-gray-50">
+                    {t('admin.reject')}
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop table */}
+        <div className="hidden md:block overflow-x-auto rounded-xl border border-gray-200" dir={dir}>
           <table className="min-w-full text-sm">
             <thead className={`bg-gray-50 ${alignClass} text-xs font-semibold uppercase tracking-wide text-gray-500`}>
               <tr>
@@ -241,14 +278,14 @@ const AdminDashboardPage = () => {
       </section>
 
       {/* Requests (interactive) */}
-      <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+      <section className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">{t('admin.sectionRequests')}</p>
             <h2 className="mt-1 text-lg font-bold text-gray-900">{t('admin.requestsTitle')}</h2>
             <p className="mt-1 text-xs text-gray-500">{t('admin.requestsHelper')}</p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
             <input
               type="search"
               value={requestsSearch}
@@ -259,7 +296,7 @@ const AdminDashboardPage = () => {
             <select
               value={requestsStatusFilter}
               onChange={(e) => { setRequestsStatusFilter(e.target.value); setRequestsPage(1); }}
-              className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 focus:border-emerald-500 focus:outline-none"
+              className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-xs text-gray-700 focus:border-emerald-500 focus:outline-none sm:w-auto"
             >
               <option value="all">{t('admin.filterAll')}</option>
               <option value="nouveau">{t('admin.statusNew')}</option>
@@ -270,7 +307,51 @@ const AdminDashboardPage = () => {
           </div>
         </div>
 
-        <div className="mt-4 overflow-x-auto rounded-xl border border-gray-200" dir={dir}>
+        {/* Mobile cards */}
+        <div className="mt-4 space-y-3 md:hidden">
+          {paginatedRequests.length === 0 ? (
+            <p className="py-4 text-sm text-gray-400">{t('admin.noRequests')}</p>
+          ) : (
+            paginatedRequests.map((r) => (
+              <div key={r._id} className="rounded-xl border border-gray-200 bg-gray-50/50 p-4 space-y-2">
+                <div className="flex items-start justify-between">
+                  <p className="text-sm font-semibold text-gray-900">{r.workType}</p>
+                  <select
+                    className="rounded-lg border border-gray-200 bg-white px-2 py-1 text-[11px] text-gray-700 focus:border-emerald-500 focus:outline-none"
+                    value={r.status}
+                    onChange={(e) => updateRequestStatus(r._id, e.target.value)}
+                  >
+                    <option value="nouveau">{t('admin.statusNew')}</option>
+                    <option value="en_cours">{t('admin.statusInProgress')}</option>
+                    <option value="apparie">{t('admin.statusMatched')}</option>
+                    <option value="clos">{t('admin.statusClosed')}</option>
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <span className="font-medium text-gray-500">{t('admin.thLocation')}</span>
+                    <p className="text-gray-700">{r.location}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-500">{t('admin.thWorkers')}</span>
+                    <p className="text-gray-700">{r.workersNeeded}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-500">{t('admin.thDates')}</span>
+                    <p className="text-gray-700">{new Date(r.startDate).toLocaleDateString()} – {new Date(r.endDate).toLocaleDateString()}</p>
+                  </div>
+                  <div>
+                    <span className="font-medium text-gray-500">{t('admin.thUser')}</span>
+                    <p className="text-gray-700">{r.userEmail || r.contactName || '-'}</p>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop table */}
+        <div className="mt-4 hidden md:block overflow-x-auto rounded-xl border border-gray-200" dir={dir}>
           <table className="min-w-full text-sm">
             <thead className={`bg-gray-50 ${alignClass} text-xs font-semibold uppercase tracking-wide text-gray-500`}>
               <tr>
